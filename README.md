@@ -16,11 +16,21 @@
 
 ---
 
+## 🔗 Live Deployment
+
+**GitHub Repository**: https://github.com/mindspanner/mindspanai
+**GitHub Pages**: https://mindspanner.github.io/mindspanai/
+**Production URL**: www.mindspan.com.au/ai (via SquareSpace iframe)
+
+**Automated Deployment**: Push to GitHub → Live in ~30 seconds
+
+---
+
 ## 📦 Package Contents
 
 ### Core Deliverable
 ```
-mindspanai-v1.0.0.html (8KB)
+index.html (8KB)
 ├─ Embedded knowledge base
 ├─ Emergency detection system
 ├─ 8 response categories + fallback
@@ -41,19 +51,35 @@ mindspanai-v1.0.0.html (8KB)
 
 ---
 
-## ⚡ Quick Start (5 Minutes to Live)
+## ⚡ Deployment & Updates
 
-### Option 1: Paste into SquareSpace (Fastest)
-1. Open `mindspanai-v1.0.0.html` in text editor
-2. Copy **all contents** (Ctrl+A, Ctrl+C)
-3. Log into www.mindspan.com.au admin
-4. Create new page: **Blank Page**, URL slug `/ai`
-5. Add **Code Block** element
-6. Paste HTML
-7. **Publish**
-8. Test: Visit www.mindspan.com.au/ai
+### 🚀 Current Setup: GitHub Pages + Auto-Deployment
 
-**Done. Refresh browser = live updates.**
+The project is already deployed and configured with automated updates!
+
+**Making Updates** (10 seconds):
+1. Edit `index.html` or any other file locally
+2. Run: `./update.sh`
+3. Wait ~30 seconds → Changes are live!
+
+**SquareSpace Integration** (One-time setup):
+1. Log into www.mindspan.com.au admin
+2. Create new page: **Blank Page**, URL slug `/ai`
+3. Add **Code Block** element
+4. Paste this iframe code:
+```html
+<iframe
+    src="https://mindspanner.github.io/mindspanai/"
+    width="100%"
+    height="900px"
+    frameborder="0"
+    style="border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+    title="MindspanAI Administrative Assistant"
+></iframe>
+```
+5. Save and **Publish**
+
+**Done!** Updates to GitHub automatically appear on your website.
 
 ---
 
