@@ -33,7 +33,7 @@ if [ $? -eq 0 ]; then
     echo "✅ Changes pushed successfully!"
     echo "🚀 Live in ~30 seconds at:"
     echo "   https://mindspanner.github.io/mindspanai/"
-    echo "   https://www.mindspan.com.au/ai (via iframe)"
+    echo "   https://www.mindspan.com.au/agent"
 else
     echo ""
     echo "❌ Push failed. Check your internet connection or GitHub authentication."

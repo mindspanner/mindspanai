@@ -20,7 +20,7 @@
 
 **GitHub Repository**: https://github.com/mindspanner/mindspanai
 **GitHub Pages**: https://mindspanner.github.io/mindspanai/
-**Production URL**: www.mindspan.com.au/ai (via SquareSpace iframe)
+**Production URL**: www.mindspan.com.au/agent (via SquareSpace iframe)
 
 **Automated Deployment**: Push to GitHub → Live in ~30 seconds
 
@@ -64,8 +64,8 @@ The project is already deployed and configured with automated updates!
 
 **SquareSpace Integration** (One-time setup):
 1. Log into www.mindspan.com.au admin
-2. Create new page: **Blank Page**, URL slug `/ai`
-3. Add **Code Block** element
+2. Navigate to the page at `/agent`
+3. Clear existing content and add **Code Block** element
 4. Paste this iframe code:
 ```html
 <iframe
