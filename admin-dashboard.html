@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindspanAI - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .faq-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .faq-item label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .faq-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .fee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .fee-table th,
+        .fee-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .fee-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .fee-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .analytics-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .analytics-stat .label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .analytics-stat .value {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .top-queries {
+            list-style: none;
+        }
+
+        .top-queries li {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .top-queries .query-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .top-queries .query-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .emergency-alert {
+            background: #ff4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .export-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .version-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MindspanAI Admin Dashboard</h1>
+            <p>Manage FAQ cards, fees, and view analytics</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- FAQ Card Editor -->
+            <div class="card">
+                <h2>FAQ Prompt Cards</h2>
+                <div class="faq-item">
+                    <label>FAQ Card 1</label>
+                    <input type="text" id="faq1" value="What services do you offer?" />
+                </div>
+                <div class="faq-item">
+                    <label>FAQ Card 2</label>
+                    <input type="text" id="faq2" value="How do I book an appointment?" />
+                </div>
+                <div class="faq-item">
+                    <label>FAQ Card 3</label>
+                    <input type="text" id="faq3" value="What are your fees and Medicare rebates?" />
+                </div>
+                <div class="faq-item">
+                    <label>FAQ Card 4</label>
+                    <input type="text" id="faq4" value="What should I bring to my first session?" />
+                </div>
+                <button class="btn" onclick="saveFAQs()">Save FAQ Cards</button>
+                <div class="success-message" id="faqSuccess">FAQ cards saved successfully!</div>
+            </div>
+
+            <!-- Fee Schedule Editor -->
+            <div class="card">
+                <h2>Fee Schedule</h2>
+                <table class="fee-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Standard Session (per hour)</td>
+                            <td><input type="number" id="feeStandard" value="250" /></td>
+                        </tr>
+                        <tr>
+                            <td>Medico-Legal (per hour)</td>
+                            <td><input type="number" id="feeMedicoLegal" value="300" /></td>
+                        </tr>
+                        <tr>
+                            <td>Medicare Rebate (Item 80110)</td>
+                            <td><input type="number" id="medicareRebate" value="141.85" step="0.01" /></td>
+                        </tr>
+                        <tr>
+                            <td>TAC Rate (per hour)</td>
+                            <td><input type="number" id="feeTAC" value="250" /></td>
+                        </tr>
+                        <tr>
+                            <td>WorkSafe Rate (per hour)</td>
+                            <td><input type="number" id="feeWorkSafe" value="250" /></td>
+                        </tr>
+                        <tr>
+                            <td>NDIS Rate (per hour)</td>
+                            <td><input type="number" id="feeNDIS" value="193.99" step="0.01" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn" onclick="saveFees()">Save Fee Schedule</button>
+                <div class="success-message" id="feeSuccess">Fee schedule saved successfully!</div>
+            </div>
+
+            <!-- Analytics Overview -->
+            <div class="card">
+                <h2>Session Analytics</h2>
+                <div class="analytics-stat">
+                    <span class="label">Total Sessions</span>
+                    <span class="value" id="totalSessions">0</span>
+                </div>
+                <div class="analytics-stat">
+                    <span class="label">Total Queries</span>
+                    <span class="value" id="totalQueries">0</span>
+                </div>
+                <div class="analytics-stat">
+                    <span class="label">Emergency Triggers</span>
+                    <span class="value" id="emergencyCount" style="color: #ff4444;">0</span>
+                </div>
+                <div class="analytics-stat">
+                    <span class="label">Contact Forms Sent</span>
+                    <span class="value" id="contactForms">0</span>
+                </div>
+                <button class="btn btn-secondary" onclick="refreshAnalytics()">Refresh Analytics</button>
+            </div>
+
+            <!-- Top Queries -->
+            <div class="card">
+                <h2>Most Frequent Queries</h2>
+                <ul class="top-queries" id="topQueriesList">
+                    <li>
+                        <span class="query-text">No data yet</span>
+                        <span class="query-count">0</span>
+                    </li>
+                </ul>
+                <div class="export-section">
+                    <button class="btn btn-secondary" onclick="exportAnalytics()">Export Full Analytics (JSON)</button>
+                    <button class="btn btn-secondary" style="margin-left: 10px;" onclick="clearAnalytics()">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <strong>System Information</strong><br>
+            Version: 1.0.0<br>
+            Build: 20250214-1500<br>
+            Data Storage: Browser localStorage<br>
+            Last Updated: <span id="lastUpdate">Never</span>
+        </div>
+    </div>
+
+    <script>
+        // Configuration storage keys
+        const STORAGE_KEYS = {
+            faqs: 'mindspanai_faqs',
+            fees: 'mindspanai_fees',
+            analytics: 'mindspanai_analytics',
+            lastUpdate: 'mindspanai_last_update'
+        };
+
+        // Initialize dashboard
+        function init() {
+            loadFAQs();
+            loadFees();
+            refreshAnalytics();
+            updateLastUpdateTime();
+        }
+
+        // Load FAQs from localStorage
+        function loadFAQs() {
+            const savedFAQs = JSON.parse(localStorage.getItem(STORAGE_KEYS.faqs) || '{}');
+            if (savedFAQs.faq1) document.getElementById('faq1').value = savedFAQs.faq1;
+            if (savedFAQs.faq2) document.getElementById('faq2').value = savedFAQs.faq2;
+            if (savedFAQs.faq3) document.getElementById('faq3').value = savedFAQs.faq3;
+            if (savedFAQs.faq4) document.getElementById('faq4').value = savedFAQs.faq4;
+        }
+
+        // Save FAQs to localStorage
+        function saveFAQs() {
+            const faqs = {
+                faq1: document.getElementById('faq1').value,
+                faq2: document.getElementById('faq2').value,
+                faq3: document.getElementById('faq3').value,
+                faq4: document.getElementById('faq4').value
+            };
+            localStorage.setItem(STORAGE_KEYS.faqs, JSON.stringify(faqs));
+            localStorage.setItem(STORAGE_KEYS.lastUpdate, new Date().toISOString());
+            
+            showSuccess('faqSuccess');
+            updateLastUpdateTime();
+            
+            // TODO: In production, trigger refresh of main agent interface
+            alert('FAQ cards saved! Note: You\'ll need to refresh the main MindspanAI page for changes to take effect.');
+        }
+
+        // Load fees from localStorage
+        function loadFees() {
+            const savedFees = JSON.parse(localStorage.getItem(STORAGE_KEYS.fees) || '{}');
+            if (savedFees.standard) document.getElementById('feeStandard').value = savedFees.standard;
+            if (savedFees.medicoLegal) document.getElementById('feeMedicoLegal').value = savedFees.medicoLegal;
+            if (savedFees.medicareRebate) document.getElementById('medicareRebate').value = savedFees.medicareRebate;
+            if (savedFees.tac) document.getElementById('feeTAC').value = savedFees.tac;
+            if (savedFees.workSafe) document.getElementById('feeWorkSafe').value = savedFees.workSafe;
+            if (savedFees.ndis) document.getElementById('feeNDIS').value = savedFees.ndis;
+        }
+
+        // Save fees to localStorage
+        function saveFees() {
+            const fees = {
+                standard: parseFloat(document.getElementById('feeStandard').value),
+                medicoLegal: parseFloat(document.getElementById('feeMedicoLegal').value),
+                medicareRebate: parseFloat(document.getElementById('medicareRebate').value),
+                tac: parseFloat(document.getElementById('feeTAC').value),
+                workSafe: parseFloat(document.getElementById('feeWorkSafe').value),
+                ndis: parseFloat(document.getElementById('feeNDIS').value)
+            };
+            localStorage.setItem(STORAGE_KEYS.fees, JSON.stringify(fees));
+            localStorage.setItem(STORAGE_KEYS.lastUpdate, new Date().toISOString());
+            
+            showSuccess('feeSuccess');
+            updateLastUpdateTime();
+            
+            alert('Fee schedule saved! Note: You\'ll need to refresh the main MindspanAI page for changes to take effect.');
+        }
+
+        // Refresh analytics display
+        function refreshAnalytics() {
+            const analytics = JSON.parse(localStorage.getItem(STORAGE_KEYS.analytics) || '{"sessions": [], "queries": {}}');
+            
+            // Calculate totals
+            const totalSessions = analytics.sessions.length;
+            let totalQueries = 0;
+            let emergencyCount = 0;
+            let contactForms = 0;
+            
+            analytics.sessions.forEach(session => {
+                totalQueries += session.queries.length;
+                session.queries.forEach(q => {
+                    if (q.emergency) emergencyCount++;
+                    if (q.query.startsWith('CONTACT_FORM_SUBMITTED')) contactForms++;
+                });
+            });
+            
+            // Update stats
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('totalQueries').textContent = totalQueries;
+            document.getElementById('emergencyCount').textContent = emergencyCount;
+            document.getElementById('contactForms').textContent = contactForms;
+            
+            // Update top queries
+            displayTopQueries(analytics.queries);
+        }
+
+        // Display top queries
+        function displayTopQueries(queries) {
+            const sorted = Object.entries(queries)
+                .filter(([query]) => !query.startsWith('EMERGENCY_') && !query.startsWith('CONTACT_FORM_'))
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            const list = document.getElementById('topQueriesList');
+            
+            if (sorted.length === 0) {
+                list.innerHTML = '<li><span class="query-text">No data yet</span><span class="query-count">0</span></li>';
+                return;
+            }
+            
+            list.innerHTML = sorted.map(([query, count]) => `
+                <li>
+                    <span class="query-text">${escapeHtml(query)}</span>
+                    <span class="query-count">${count}</span>
+                </li>
+            `).join('');
+        }
+
+        // Export analytics as JSON
+        function exportAnalytics() {
+            const analytics = localStorage.getItem(STORAGE_KEYS.analytics);
+            const blob = new Blob([analytics], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mindspanai-analytics-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Clear all analytics
+        function clearAnalytics() {
+            if (confirm('Are you sure you want to clear ALL analytics data? This cannot be undone.')) {
+                localStorage.setItem(STORAGE_KEYS.analytics, JSON.stringify({"sessions": [], "queries": {}}));
+                refreshAnalytics();
+                alert('All analytics data cleared.');
+            }
+        }
+
+        // Show success message
+        function showSuccess(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        // Update last update time
+        function updateLastUpdateTime() {
+            const lastUpdate = localStorage.getItem(STORAGE_KEYS.lastUpdate);
+            if (lastUpdate) {
+                const date = new Date(lastUpdate);
+                document.getElementById('lastUpdate').textContent = date.toLocaleString();
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on load
+        init();
+
+        // Auto-refresh analytics every 30 seconds
+        setInterval(refreshAnalytics, 30000);
+    </script>
+</body>
+</html>

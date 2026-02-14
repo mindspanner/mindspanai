@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archives
+*.zip
+*.tar.gz
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Files directory (if needed for local storage only)
+files/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

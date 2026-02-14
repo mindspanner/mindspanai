@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindspanAI | Administrative Assistant</title>
+    <meta name="description" content="Get instant answers about Mindspan Psychology services, fees, booking, and what to expect.">
+    
+    <style>
+        :root {
+            --primary: #2c5f7d;
+            --primary-light: #4a7fa0;
+            --accent: #e8956b;
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border: #e2e8f0;
+            --emergency: #dc3545;
+            --success: #28a745;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+        
+        .disclaimer strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .prompt-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .prompt-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .prompt-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 95, 125, 0.15);
+        }
+        
+        .prompt-card:active {
+            transform: translateY(0);
+        }
+        
+        .prompt-card .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .prompt-card .label {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        
+        .chat-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            text-align: right;
+        }
+        
+        .message.assistant {
+            text-align: left;
+        }
+        
+        .message-content {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-align: left;
+        }
+        
+        .message.user .message-content {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .message.assistant .message-content {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+        
+        .message.system .message-content {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .message-content a {
+            color: inherit;
+            text-decoration: underline;
+        }
+        
+        .input-area {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+            background: var(--bg-card);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        #userInput:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        #sendBtn {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        #sendBtn:hover:not(:disabled) {
+            background: var(--primary-light);
+        }
+        
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .emergency-banner {
+            display: none;
+            background: var(--emergency);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+        
+        .emergency-banner.active {
+            display: block;
+        }
+        
+        .emergency-contacts {
+            margin-top: 15px;
+            line-height: 1.8;
+        }
+        
+        .emergency-contacts a {
+            color: white;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .version {
+            opacity: 0.6;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
+            .prompt-cards { grid-template-columns: 1fr; }
+            #messages { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 MindspanAI</h1>
+            <p>Your 24/7 administrative assistant for Mindspan Psychology</p>
+        </header>
+        
+        <div class="disclaimer">
+            <strong>⚠️ Important Notice</strong>
+            This is a general information assistant only, not a substitute for clinical assessment or emergency services. 
+            For urgent mental health support, see emergency contacts below.
+        </div>
+        
+        <div id="emergencyBanner" class="emergency-banner">
+            <strong>🚨 EMERGENCY SUPPORT</strong>
+            <div class="emergency-contacts">
+                If you or someone you know is in immediate danger:<br>
+                <strong>Emergency Services:</strong> <a href="tel:000">000</a><br>
+                <strong>Lifeline (24/7):</strong> <a href="tel:131114">13 11 14</a><br>
+                <strong>Beyond Blue (24/7):</strong> <a href="tel:1300224636">1300 22 4636</a><br>
+                <strong>Suicide Call Back Service:</strong> <a href="tel:1300659467">1300 659 467</a>
+            </div>
+        </div>
+        
+        <div class="prompt-cards">
+            <div class="prompt-card" onclick="sendPrompt('What services do you offer?')">
+                <div class="icon">🔍</div>
+                <div class="label">What services do you offer?</div>
+            </div>
+            <div class="prompt-card" onclick="sendPrompt('How do I book an appointment?')">
+                <div class="icon">📅</div>
+                <div class="label">How do I book an appointment?</div>
+            </div>
+            <div class="prompt-card" onclick="sendPrompt('What are your fees and Medicare rebates?')">
+                <div class="icon">💰</div>
+                <div class="label">Fees & Medicare rebates</div>
+            </div>
+            <div class="prompt-card" onclick="sendPrompt('What should I bring to my first session?')">
+                <div class="icon">📋</div>
+                <div class="label">What to bring</div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div id="messages">
+                <div class="message system">
+                    <div class="message-content">
+                        👋 <strong>Welcome!</strong> I'm here to help answer questions about Mindspan Psychology services, 
+                        booking, fees, and what to expect. Click a question above or type your own below.
+                    </div>
+                </div>
+            </div>
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        placeholder="Ask me anything about our services..." 
+                        onkeypress="if(event.key==='Enter') sendMessage()"
+                    >
+                    <button id="sendBtn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>
+                <strong>Contact us directly:</strong><br>
+                📧 <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a> | 
+                📞 <a href="tel:0451614155">0451 614 155</a><br>
+                📍 512 Barry Rd, Coolaroo, VIC 3048
+            </p>
+            <div class="version">
+                MindspanAI v1.0.0 | Build 20250214-1430 | Powered by Claude
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // Configuration
+        const CONFIG = {
+            version: '1.0.0',
+            build: '20250214-1430',
+            mode: 'static' // No API calls, pure client-side logic
+        };
+        
+        // Emergency keywords detection
+        const EMERGENCY_KEYWORDS = [
+            'suicide', 'suicidal', 'kill myself', 'end my life', 'want to die',
+            'self harm', 'self-harm', 'cutting', 'overdose',
+            'crisis', 'emergency', 'urgent help', 'cant go on', "can't go on",
+            'psychosis', 'hearing voices', 'seeing things',
+            'hurt myself', 'hurt someone', 'violence'
+        ];
+        
+        // Response database (keyword matching + templates)
+        const RESPONSE_DATABASE = {
+            services: {
+                keywords: ['service', 'offer', 'what do you do', 'help with', 'therapy', 'treatment', 'assessment'],
+                response: `Mindspan Psychology offers three main service areas:<br><br>
+
+<strong>1. Psychological Therapy & Assessment</strong><br>
+We treat anxiety, depression, trauma, PTSD, ADHD, autism, personality disorders, relationship issues, and more. Our evidence-based approaches include CBT, ACT, Schema Therapy, and Narrative Therapy. We work with children, teenagers, adults, older adults, couples, and families.<br><br>
+
+<strong>2. Executive Coaching & Consultancy</strong><br>
+Leadership development, team resilience, and organisational change grounded in psychological science ($250/session or $2,500 for 5 sessions).<br><br>
+
+<strong>3. Medico-Legal Services</strong><br>
+Assessments for TAC, NDIS, WorkCover, VOCAT, and DVA.<br><br>
+
+All services available in-person (Coolaroo, Roxburgh Park) or via telehealth across Australia.<br><br>
+
+Ready to book? <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Click here</a> or call 0451 614 155.<br><br>
+
+<em>This is general information only. For personalised guidance, book an appointment.</em>`
+            },
+            
+            booking: {
+                keywords: ['book', 'appointment', 'schedule', 'when can i', 'availability', 'time', 'date'],
+                response: `<strong>Three ways to book:</strong><br><br>
+
+<strong>1. Online (Fastest):</strong> <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now via Halaxy</a><br>
+<strong>2. Phone:</strong> <a href="tel:0451614155">0451 614 155</a> or <a href="tel:0393097011">03 9309 7011</a><br>
+<strong>3. Email:</strong> <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br><br>
+
+<strong>Current availability (this week):</strong><br>
+• Wednesday & Thursday: 9:30 AM – 5:00 PM<br>
+• Saturday: 9:00 AM – 4:00 PM<br><br>
+
+Choose in-person (Coolaroo or Roxburgh Park) or telehealth. Online booking shows real-time availability.<br><br>
+
+<em>This is general information only. For personalised guidance, book an appointment.</em>`
+            },
+            
+            fees: {
+                keywords: ['fee', 'cost', 'price', 'charge', 'medicare', 'rebate', 'gap', 'bulk bill', 'how much', 'expensive'],
+                response: `<strong>Standard Fees:</strong><br>
+• Private/Medicare-funded session: <strong>$198.45</strong><br>
+• Couples counselling: <strong>$125/person</strong><br>
+• Executive coaching: <strong>$250</strong> (single) or <strong>$2,500</strong> (5-session package)<br>
+• NDIS appointment: <strong>$232.99</strong><br><br>
+
+<strong>Medicare Rebate (with valid MHCP):</strong><br>
+• Rebate: ~$141.85 per session (50+ min)<br>
+• Your gap: ~$56.60<br>
+• Coverage: Up to 10 sessions/year (6 initial + 4 additional with GP review)<br><br>
+
+Bulk billing may be available – confirm when booking.<br><br>
+
+<strong>Payment:</strong> EFTPOS, credit/debit, private health insurance (where applicable).<br><br>
+
+<em>Fees current as of Feb 2025. For latest pricing, <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">book online</a> or call 0451 614 155.</em>`
+            },
+            
+            firstSession: {
+                keywords: ['bring', 'first session', 'first appointment', 'prepare', 'what to expect', 'initial'],
+                response: `<strong>What to bring to your first session:</strong><br><br>
+
+<strong>Essential:</strong><br>
+• Valid ID (driver's licence or passport)<br>
+• Medicare card (if claiming rebate)<br><br>
+
+<strong>If applicable:</strong><br>
+• GP Mental Health Care Plan (MHCP)<br>
+• Referral letters (GP, specialist, TAC, NDIS, etc.)<br>
+• List of current medications<br>
+• Relevant medical/psychological reports<br>
+• Private health insurance details<br><br>
+
+<strong>What to expect:</strong><br>
+Ilker will guide you through a warm, collaborative assessment. This first session focuses on understanding your concerns, history, and goals. No need to worry – the process is structured to be comfortable and supportive.<br><br>
+
+<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book your first session →</a><br><br>
+
+<em>This is general information only. For personalised guidance, book an appointment.</em>`
+            },
+            
+            location: {
+                keywords: ['where', 'location', 'address', 'find you', 'directions', 'parking'],
+                response: `<strong>Practice Locations:</strong><br><br>
+
+<strong>Primary: Coolaroo Clinic</strong><br>
+512 Barry Rd, Coolaroo, VIC 3048<br>
+• Wheelchair accessible<br>
+• <a href="https://www.google.com/maps/search/?api=1&query=-37.664565,144.931547" target="_blank">View on Google Maps</a><br><br>
+
+<strong>Secondary: Roxburgh Park Doctors</strong><br>
+Roxy Central, T10/15 Fouz St, Roxburgh Park, VIC 3064<br><br>
+
+<strong>Telehealth:</strong> Available Australia-wide (book online and receive video link)<br><br>
+
+<strong>Contact:</strong><br>
+📧 <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br>
+📞 <a href="tel:0451614155">0451 614 155</a><br><br>
+
+<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`
+            },
+            
+            practitioner: {
+                keywords: ['who is', 'ilker', 'psychologist', 'qualifications', 'experience', 'about'],
+                response: `<strong>Ilker Abak, Registered Psychologist</strong><br><br>
+
+<strong>Qualifications:</strong><br>
+• M Psych (Clinical Psychology)<br>
+• MBA (Master of Business Administration)<br>
+• MEd (Master of Education)<br>
+• Member: MIAAN (International Association of Applied Neuroscience)<br>
+• Assoc. MAPS (Australian Psychological Society)<br><br>
+
+<strong>Experience:</strong><br>
+• AHPRA registered since 2014<br>
+• 15+ years in education (secondary/tertiary, local/international)<br>
+• Treats patients across lifespan: children, teenagers, adults, older adults<br>
+• Bilingual: English & Turkish<br><br>
+
+<strong>Approach:</strong><br>
+Warm, collaborative, evidence-based. Draws on educational background and clinical expertise to create relatable, transformative therapeutic relationships. Specialises in trauma, relationships, forensic/medico-legal psychology, and migration assessments.<br><br>
+
+<a href="https://www.mindspan.com.au/about" target="_blank">Learn more →</a> | <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`
+            },
+            
+            telehealth: {
+                keywords: ['telehealth', 'online', 'video', 'virtual', 'remote', 'zoom'],
+                response: `<strong>Telehealth Services Available</strong><br><br>
+
+Mindspan Psychology offers secure telehealth appointments Australia-wide via Halaxy's video platform.<br><br>
+
+<strong>How it works:</strong><br>
+1. Book online: <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Halaxy booking</a><br>
+2. Select "Online consultation"<br>
+3. Receive video link via email<br>
+4. Join session at scheduled time<br><br>
+
+<strong>Same fees and Medicare rebates apply.</strong><br><br>
+
+<strong>Requirements:</strong> Stable internet, device with camera/microphone, private space.<br><br>
+
+<em>This is general information only. For personalised guidance, book an appointment.</em>`
+            },
+            
+            ndis: {
+                keywords: ['ndis', 'disability', 'funded', 'plan managed', 'self managed'],
+                response: `<strong>NDIS Services</strong><br><br>
+
+Mindspan Psychology accepts NDIS participants for psychological assessments and therapy.<br><br>
+
+<strong>Fee:</strong> $232.99 per appointment (aligned with NDIS pricing)<br>
+<strong>Funding types accepted:</strong> Plan-managed and self-managed<br>
+<strong>What we offer:</strong> Comprehensive assessments, ongoing therapy, behaviour support<br><br>
+
+<strong>How to book:</strong><br>
+1. Confirm your NDIS plan covers psychology (Capacity Building - Improved Daily Living)<br>
+2. Book: <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Online</a> or call 0451 614 155<br>
+3. Bring your NDIS plan and service agreement<br><br>
+
+<em>Note: Mindspan cannot guarantee NDIS funding approval – confirm budget availability with your plan manager/LAC before booking.</em>`
+            },
+            
+            medicare: {
+                keywords: ['mental health', 'care plan', 'mhcp', 'gp referral', 'better access'],
+                response: `<strong>Medicare (Better Access Initiative)</strong><br><br>
+
+<strong>How to access Medicare rebates:</strong><br>
+1. Visit your GP and request a Mental Health Care Plan (MHCP)<br>
+2. GP assesses and provides referral to psychologist<br>
+3. Book with Mindspan: <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Online</a> or 0451 614 155<br>
+4. Bring MHCP + Medicare card to session<br>
+5. Claim rebate (~$141.85 per session)<br><br>
+
+<strong>Sessions covered:</strong> Up to 10/year (6 initial + 4 additional with GP review)<br>
+<strong>Your gap:</strong> ~$56.60 per session ($198.45 - $141.85)<br><br>
+
+Bulk billing may be available – confirm when booking.<br><br>
+
+<em>This is general information only. For personalised guidance, book an appointment.</em>`
+            },
+            
+            tac: {
+                keywords: ['tac', 'transport accident', 'car accident', 'injury claim'],
+                response: `<strong>TAC (Transport Accident Commission) Services</strong><br><br>
+
+Mindspan Psychology provides psychological assessments and treatment for TAC clients.<br><br>
+
+<strong>What we offer:</strong><br>
+• Initial psychological assessment<br>
+• Ongoing therapy for accident-related trauma, anxiety, depression, PTSD<br>
+• Medico-legal reports for claim support<br><br>
+
+<strong>How to proceed:</strong><br>
+1. Confirm TAC approval for psychology services<br>
+2. Contact us: <a href="tel:0451614155">0451 614 155</a> or <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br>
+3. Provide TAC claim number and approval letter<br>
+4. Book: <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Online</a> or by phone<br><br>
+
+<em>Note: Mindspan cannot predict claim outcomes or guarantee TAC approval. This is general info only.</em>`
+            },
+            
+            fallback: {
+                keywords: [],
+                response: `I can help with questions about:<br><br>
+
+• Services we offer<br>
+• Booking appointments<br>
+• Fees and Medicare rebates<br>
+• What to bring to your first session<br>
+• Practice locations and hours<br>
+• NDIS, TAC, WorkCover services<br><br>
+
+For clinical questions or personalised advice, please book an appointment:<br>
+<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book online →</a><br><br>
+
+Or contact us directly:<br>
+📧 <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br>
+📞 <a href="tel:0451614155">0451 614 155</a><br><br>
+
+<em>This is general information only, not clinical advice.</em>`
+            }
+        };
+        
+        // Analytics storage
+        function logInteraction(userMessage, responseKey, isEmergency = false) {
+            const log = {
+                timestamp: new Date().toISOString(),
+                userMessage: userMessage.substring(0, 200), // Truncate for privacy
+                responseKey: responseKey,
+                isEmergency: isEmergency,
+                sessionId: getSessionId()
+            };
+            
+            // Store in localStorage
+            let logs = JSON.parse(localStorage.getItem('mindspanai_logs') || '[]');
+            logs.push(log);
+            
+            // Keep last 100 interactions
+            if (logs.length > 100) logs = logs.slice(-100);
+            
+            localStorage.setItem('mindspanai_logs', JSON.stringify(logs));
+        }
+        
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('mindspanai_session');
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                sessionStorage.setItem('mindspanai_session', sessionId);
+            }
+            return sessionId;
+        }
+        
+        // Check for emergency keywords
+        function checkEmergency(text) {
+            const lowerText = text.toLowerCase();
+            return EMERGENCY_KEYWORDS.some(keyword => lowerText.includes(keyword));
+        }
+        
+        // Match user query to response
+        function matchResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Check each category
+            for (const [key, data] of Object.entries(RESPONSE_DATABASE)) {
+                if (key === 'fallback') continue;
+                
+                const matches = data.keywords.some(keyword => 
+                    lowerMessage.includes(keyword.toLowerCase())
+                );
+                
+                if (matches) {
+                    return { key, response: data.response };
+                }
+            }
+            
+            // Return fallback
+            return { key: 'fallback', response: RESPONSE_DATABASE.fallback.response };
+        }
+        
+        // Display message in chat
+        function displayMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content; // Already formatted HTML
+            
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // Send message via prompt card
+        function sendPrompt(promptText) {
+            document.getElementById('userInput').value = promptText;
+            sendMessage();
+        }
+        
+        // Main send message function
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Check for emergency
+            const isEmergency = checkEmergency(message);
+            if (isEmergency) {
+                document.getElementById('emergencyBanner').classList.add('active');
+                displayMessage('user', message);
+                displayMessage('system', 
+                    '🚨 <strong>URGENT:</strong> This is not a crisis service. If you are in immediate danger, please contact:<br><br>' +
+                    '<strong>Emergency Services:</strong> <a href="tel:000">000</a><br>' +
+                    '<strong>Lifeline (24/7):</strong> <a href="tel:131114">13 11 14</a><br>' +
+                    '<strong>Beyond Blue (24/7):</strong> <a href="tel:1300224636">1300 22 4636</a><br>' +
+                    '<strong>Suicide Call Back Service:</strong> <a href="tel:1300659467">1300 659 467</a><br><br>' +
+                    'For non-urgent support, you can book an appointment at: <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Halaxy</a>'
+                );
+                logInteraction(message, 'emergency', true);
+                input.value = '';
+                return;
+            }
+            
+            // Display user message
+            displayMessage('user', message);
+            input.value = '';
+            sendBtn.disabled = true;
+            
+            // Simulate brief "thinking" delay for UX
+            setTimeout(() => {
+                const matched = matchResponse(message);
+                displayMessage('assistant', matched.response);
+                logInteraction(message, matched.key, false);
+                sendBtn.disabled = false;
+            }, 300);
+        }
+        
+        // Initialize
+        console.log(`MindspanAI ${CONFIG.version} initialized (Build ${CONFIG.build}, Mode: ${CONFIG.mode})`);
+        console.log('Session ID:', getSessionId());
+    </script>
+</body>
+</html>
