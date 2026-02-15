@@ -1,0 +1,30 @@
+{
+  "name": "mindspanai",
+  "version": "2.0.0",
+  "description": "AI-powered administrative assistant for Mindspan Psychology",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod",
+    "deploy-preview": "vercel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindspanner/mindspanai.git"
+  },
+  "keywords": [
+    "psychology",
+    "chatbot",
+    "ai",
+    "healthcare",
+    "mental-health"
+  ],
+  "author": "Ilker Abak <info@mindspan.com.au>",
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
+}

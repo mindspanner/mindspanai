@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindspanAI - Administrative Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-bottom: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .faq-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .faq-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .faq-card:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #764ba2;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 70%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        .emergency-banner {
+            background: #ff4444;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 3px solid #cc0000;
+        }
+
+        .emergency-banner h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .emergency-banner .contact-list {
+            margin-top: 10px;
+        }
+
+        .emergency-banner .contact-item {
+            padding: 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .input-container {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #userInput:focus {
+            border-color: #667eea;
+        }
+
+        #sendBtn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #sendBtn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        #sendBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .loading {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .version {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .fee-calculator {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #d0d7ff;
+        }
+
+        .fee-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 16px;
+            padding-top: 12px;
+        }
+
+        .contact-form {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .contact-form h4 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .form-btn:hover {
+            background: #5568d3;
+        }
+
+        .error-text {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MindspanAI</h1>
+            <p>Administrative Assistant for Mindspan Psychology</p>
+        </div>
+
+        <div class="faq-cards">
+            <div class="faq-card" data-question="What services do you offer?">
+                What services do you offer?
+            </div>
+            <div class="faq-card" data-question="How do I book an appointment?">
+                How do I book an appointment?
+            </div>
+            <div class="faq-card" data-question="What are your fees and Medicare rebates?">
+                What are your fees and rebates?
+            </div>
+            <div class="faq-card" data-question="What should I bring to my first session?">
+                What should I bring?
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message">
+                <div class="message-avatar">AI</div>
+                <div class="message-content">
+                    <p>Hello! I'm MindspanAI, your administrative assistant for Mindspan Psychology.</p>
+                    <p style="margin-top: 10px;">I can help you with:</p>
+                    <ul style="margin-left: 20px; margin-top: 8px;">
+                        <li>Service information</li>
+                        <li>Booking appointments</li>
+                        <li>Fee calculations and Medicare rebates</li>
+                        <li>First session preparation</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 13px; opacity: 0.8;">Click a question above or ask me anything!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ask me anything about Mindspan Psychology..." />
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="version">MindspanAI v1.0.0 | Build 20250214-1500</div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            version: '1.0.0',
+            build: '20250214-1500',
+            apiEndpoint: 'https://api.anthropic.com/v1/messages',
+            model: 'claude-sonnet-4-5-20250929',
+            maxTokens: 1000,
+            temperature: 0.7
+        };
+
+        // Knowledge Base (embedded from context.md)
+        const KNOWLEDGE_BASE = `
+# Mindspan Psychology - Knowledge Base
+
+## Practitioner
+Ilker Abak - Clinical Psychologist (M Psych Clinical, B Psych Hons, MAPS)
+AHPRA Registered, Medicare Provider
+Locations: Werribee VIC, Telehealth (Australia-wide)
+Contact: 0451 120 500, hello@mindspan.com.au
+Website: www.mindspan.com.au
+Booking: https://www.halaxy.com/profile/ilker-abak/psychologist/359455
+
+## Services
+1. Comprehensive Psychological Assessment (diagnostic, treatment planning, medico-legal)
+2. Individual Therapy (CBT, ACT, Schema Therapy for trauma, anxiety, depression, PTSD, OCD)
+3. Couples Therapy (communication, conflict resolution, attachment)
+4. Medico-Legal Services (TAC, WorkSafe, NDIS, migration psychology reports)
+
+## Fee Schedule
+- Standard: $250/hour (50-60 min sessions)
+- Medico-Legal: $300/hour (includes reports, court attendance min 2hrs)
+
+## Medicare Rebates (Clinical Psychologist - Item 80110 for 50+ min)
+- Rebate: $141.85
+- Requires: Valid GP Mental Health Treatment Plan (MHTP) or Psychiatrist referral
+- Limit: 10 sessions/year (up to 20 in exceptional circumstances)
+- Gap fee example: $250 - $141.85 = $108.15 out-of-pocket
+
+NOTE: Medicare rebates are SAME for General and Clinical Psychologists under Better Access.
+Clinical status matters for private health insurance and NDIS pricing.
+
+## TAC (Transport Accident Commission)
+- Pre-approval required (TAC claim number)
+- Rate: $200-250/hour (negotiated)
+- No patient gap - TAC pays directly
+
+## WorkSafe Victoria
+- Pre-approval required (WorkSafe claim number)
+- Rate: $250/hour standard, $300/hour for IME
+- No patient gap - WorkSafe pays directly
+
+## NDIS
+- Plan-managed or Self-managed
+- Rate: $193.99/hour (NDIS price guide 2024-25 Level 2)
+- Clinical Psychologist may attract higher tier
+- Cannot claim Medicare and NDIS together
+
+## Emergency Contacts
+000 (Emergency)
+Lifeline: 13 11 14
+Beyond Blue: 1300 22 4636
+Suicide Call Back Service: 1300 659 467
+
+## Booking Process
+1. Via Halaxy: https://www.halaxy.com/profile/ilker-abak/psychologist/359455
+2. Via Phone: 0451 120 500
+3. Via Email: hello@mindspan.com.au
+
+## First Session Preparation
+Bring: Medicare card, GP MHTP (if applicable), referral letter, TAC/WorkSafe claim number (if applicable), medication list, previous reports
+
+## Cancellation Policy
+24 hours notice required. Late cancellation or no-show may incur full fee.
+
+## Languages
+English (primary), Turkish (fluent)
+
+## Guardrails
+CANNOT provide: clinical diagnosis, treatment recommendations, crisis intervention, legal advice, outcome predictions
+CAN provide: service info, booking guidance, fee explanations, Medicare/insurance clarification, first session preparation
+`;
+
+        // Emergency keywords detection
+        const EMERGENCY_KEYWORDS = [
+            'suicide', 'suicidal', 'kill myself', 'end my life', 'self harm', 'self-harm',
+            'hurt myself', 'overdose', 'want to die', 'psychosis', 'hearing voices',
+            'harm others', 'kill someone', 'severe withdrawal'
+        ];
+
+        // Complex query triggers (for email form)
+        const COMPLEX_TRIGGERS = [
+            'specific condition', 'how long will therapy', 'what will the report say',
+            'complaint', 'concern about service', 'not happy', 'dissatisfied'
+        ];
+
+        // Analytics storage
+        let analytics = JSON.parse(localStorage.getItem('mindspanai_analytics') || '{"sessions": [], "queries": {}}');
+
+        // DOM elements
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const faqCards = document.querySelectorAll('.faq-card');
+
+        // Initialize
+        function init() {
+            // FAQ card listeners
+            faqCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const question = card.getAttribute('data-question');
+                    handleUserMessage(question);
+                });
+            });
+
+            // Send button listener
+            sendBtn.addEventListener('click', sendMessage);
+            
+            // Enter key listener
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Start session tracking
+            analytics.sessions.push({
+                timestamp: new Date().toISOString(),
+                queries: []
+            });
+        }
+
+        // Send message handler
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            userInput.value = '';
+            handleUserMessage(message);
+        }
+
+        // Handle user message
+        async function handleUserMessage(message) {
+            // Add user message to chat
+            addMessage(message, 'user');
+
+            // Check for emergency keywords
+            if (detectEmergency(message)) {
+                showEmergencyBanner();
+                return;
+            }
+
+            // Check for complex query (offer email form)
+            if (detectComplexQuery(message)) {
+                showContactForm(message);
+                return;
+            }
+
+            // Track query
+            trackQuery(message);
+
+            // Show loading
+            const loadingId = showLoading();
+
+            // Get AI response
+            try {
+                const response = await getAIResponse(message);
+                removeLoading(loadingId);
+                
+                // Check if response includes fee calculation
+                if (message.toLowerCase().includes('fee') || message.toLowerCase().includes('cost') || message.toLowerCase().includes('medicare')) {
+                    addMessage(response, 'ai');
+                    showFeeCalculator();
+                } else {
+                    addMessage(response, 'ai');
+                }
+            } catch (error) {
+                removeLoading(loadingId);
+                addMessage('I apologize, but I encountered an error. Please try again or contact us directly at hello@mindspan.com.au or 0451 120 500.', 'ai');
+                console.error('AI Error:', error);
+            }
+        }
+
+        // Detect emergency keywords
+        function detectEmergency(message) {
+            const lowerMessage = message.toLowerCase();
+            return EMERGENCY_KEYWORDS.some(keyword => lowerMessage.includes(keyword));
+        }
+
+        // Detect complex query
+        function detectComplexQuery(message) {
+            const lowerMessage = message.toLowerCase();
+            return COMPLEX_TRIGGERS.some(trigger => lowerMessage.includes(trigger));
+        }
+
+        // Show emergency banner
+        function showEmergencyBanner() {
+            const banner = document.createElement('div');
+            banner.className = 'emergency-banner';
+            banner.innerHTML = `
+                <h3>⚠️ IMMEDIATE SUPPORT NEEDED</h3>
+                <p>If you're in immediate danger:</p>
+                <div class="contact-list">
+                    <div class="contact-item">🚨 Emergency: 000</div>
+                    <div class="contact-item">📞 Lifeline: 13 11 14</div>
+                    <div class="contact-item">📞 Beyond Blue: 1300 22 4636</div>
+                    <div class="contact-item">📞 Suicide Call Back Service: 1300 659 467</div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px;">This service is for general enquiries only and is not a crisis intervention service. Please contact the services above or present to your nearest hospital emergency department.</p>
+            `;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content" style="max-width: 100%; background: white;">
+                    ${banner.outerHTML}
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+
+            // Track emergency query
+            trackQuery('EMERGENCY_DETECTED', true);
+        }
+
+        // Show fee calculator
+        function showFeeCalculator() {
+            const calculator = document.createElement('div');
+            calculator.className = 'fee-calculator';
+            calculator.innerHTML = `
+                <h4 style="margin-bottom: 10px; color: #667eea;">Fee Breakdown Example (60-min session)</h4>
+                <div class="fee-row">
+                    <span>Session fee:</span>
+                    <span>$250.00</span>
+                </div>
+                <div class="fee-row">
+                    <span>Medicare rebate (Item 80110):</span>
+                    <span>- $141.85</span>
+                </div>
+                <div class="fee-row">
+                    <span>Your out-of-pocket cost:</span>
+                    <span style="color: #667eea;">$108.15</span>
+                </div>
+                <p style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                    * Requires valid GP Mental Health Treatment Plan or Psychiatrist referral<br>
+                    * Private health insurance may cover some/all of the gap
+                </p>
+            `;
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content" style="max-width: 90%; background: white;">
+                    ${calculator.outerHTML}
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Show contact form
+        function showContactForm(originalQuery) {
+            const form = document.createElement('div');
+            form.className = 'contact-form';
+            form.innerHTML = `
+                <h4>This query requires practitioner input. Send an email to hello@mindspan.com.au:</h4>
+                <div class="form-group">
+                    <label>Your Email *</label>
+                    <input type="email" id="contactEmail" placeholder="your@email.com" required />
+                    <span class="error-text" id="emailError" style="display: none;">Please enter a valid email address</span>
+                </div>
+                <div class="form-group">
+                    <label>Your Question</label>
+                    <textarea id="contactMessage" readonly>${originalQuery}</textarea>
+                    <p style="font-size: 12px; margin-top: 5px; opacity: 0.7;">You can edit this before sending</p>
+                </div>
+                <button class="form-btn" onclick="sendContactEmail()">Send Email</button>
+            `;
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content" style="max-width: 90%; background: white;">
+                    ${form.outerHTML}
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+
+            // Make textarea editable after adding to DOM
+            setTimeout(() => {
+                document.getElementById('contactMessage').readOnly = false;
+            }, 100);
+        }
+
+        // Send contact email (simulated - would use backend in production)
+        window.sendContactEmail = function() {
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            const emailError = document.getElementById('emailError');
+
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                emailError.style.display = 'block';
+                return;
+            }
+
+            emailError.style.display = 'none';
+
+            // Create mailto link
+            const subject = encodeURIComponent('Enquiry from MindspanAI');
+            const body = encodeURIComponent(`From: ${email}\n\nQuestion:\n${message}\n\n---\nSent via MindspanAI`);
+            const mailtoLink = `mailto:hello@mindspan.com.au?subject=${subject}&body=${body}`;
+
+            // Open default email client
+            window.location.href = mailtoLink;
+
+            addMessage('Email client opened! Please send the pre-filled email. You should receive a response within 1 business day.', 'ai');
+
+            // Track contact form submission
+            trackQuery('CONTACT_FORM_SUBMITTED: ' + email);
+        };
+
+        // Get AI response (simulated - replace with actual Anthropic API call)
+        async function getAIResponse(userMessage) {
+            // This is a simulated response. In production, you would call the Anthropic API.
+            // For now, return hardcoded responses based on FAQ patterns
+
+            const lowerMessage = userMessage.toLowerCase();
+
+            if (lowerMessage.includes('services') || lowerMessage.includes('what do you offer')) {
+                return `I offer comprehensive psychological services including:
+
+**1. Individual Therapy**
+CBT, ACT, and Schema Therapy for anxiety, depression, PTSD, OCD, and trauma.
+
+**2. Couples Therapy**
+Communication skills, conflict resolution, and attachment-based work.
+
+**3. Psychological Assessments**
+Diagnostic clarification and treatment planning.
+
+**4. Medico-Legal Services**
+TAC, WorkSafe, NDIS functional assessments, and migration psychology reports.
+
+Sessions are available in Werribee or via telehealth across Australia. I'm a Clinical Psychologist (MAPS) registered with AHPRA.`;
+            }
+
+            if (lowerMessage.includes('book') || lowerMessage.includes('appointment')) {
+                return `You can book an appointment in 3 ways:
+
+**1. Online (Recommended)**
+Visit: https://www.halaxy.com/profile/ilker-abak/psychologist/359455
+Click "Book Appointment" and choose your preferred time.
+
+**2. Phone**
+Call: 0451 120 500
+Leave a message if unavailable - I'll return your call within 24 hours.
+
+**3. Email**
+Email: hello@mindspan.com.au
+Include your preferred days/times and I'll respond within 1 business day.
+
+Current availability is visible in the Halaxy booking system.`;
+            }
+
+            if (lowerMessage.includes('fee') || lowerMessage.includes('cost') || lowerMessage.includes('medicare') || lowerMessage.includes('rebate')) {
+                return `Here's the fee structure:
+
+**Standard Sessions**
+$250/hour (typically 50-60 minutes)
+
+**Medicare Rebate (Clinical Psychologist)**
+Item 80110 (50+ min): $141.85 rebate
+Requires: Valid GP Mental Health Treatment Plan or Psychiatrist referral
+Your out-of-pocket gap: $108.15
+
+**Medico-Legal Services**
+$300/hour for TAC, WorkSafe, NDIS reports, court attendance
+
+**TAC/WorkSafe**
+Pre-approval required. No patient gap - insurer pays directly.
+
+**NDIS**
+$193.99/hour (NDIS price guide). Cannot claim Medicare and NDIS together.
+
+Private health insurance may cover some/all of the gap fee. I'll show you a detailed breakdown below.`;
+            }
+
+            if (lowerMessage.includes('first session') || lowerMessage.includes('what to bring') || lowerMessage.includes('preparation')) {
+                return `For your first session, please bring:
+
+**Essential**
+✓ Medicare card (if claiming rebate)
+✓ GP Mental Health Treatment Plan (if applicable)
+✓ Referral letter (if applicable)
+
+**If Applicable**
+✓ TAC/WorkSafe claim number
+✓ List of current medications
+✓ Previous psychological reports
+
+**What to Expect**
+The first session (50-60 minutes) focuses on understanding your concerns, background, and goals. We'll collaboratively develop a treatment plan or assessment recommendations.
+
+**Cancellation Policy**
+24 hours notice required. Late cancellations or no-shows may incur the full fee.`;
+            }
+
+            // Default response for unmatched queries
+            return `I can help with general enquiries about:
+- Services offered
+- Booking appointments
+- Fees and Medicare rebates
+- First session preparation
+- TAC, WorkSafe, and NDIS billing
+
+For specific clinical questions or complex queries, please contact Ilker directly:
+📞 0451 120 500
+📧 hello@mindspan.com.au
+
+How else can I assist you today?`;
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${sender === 'user' ? 'You' : 'AI'}</div>
+                <div class="message-content">${formatMessage(text)}</div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Format message with markdown-like formatting
+        function formatMessage(text) {
+            return text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/^(✓|📞|📧|🚨)/gm, '<br>$1');
+        }
+
+        // Show loading animation
+        function showLoading() {
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = loadingId;
+            loadingDiv.className = 'message';
+            loadingDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content">
+                    <div class="loading">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(loadingDiv);
+            scrollToBottom();
+            return loadingId;
+        }
+
+        // Remove loading animation
+        function removeLoading(loadingId) {
+            const loadingDiv = document.getElementById(loadingId);
+            if (loadingDiv) loadingDiv.remove();
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Track query in analytics
+        function trackQuery(query, isEmergency = false) {
+            const currentSession = analytics.sessions[analytics.sessions.length - 1];
+            currentSession.queries.push({
+                query: query,
+                timestamp: new Date().toISOString(),
+                emergency: isEmergency
+            });
+
+            // Update query frequency
+            if (!analytics.queries[query]) {
+                analytics.queries[query] = 0;
+            }
+            analytics.queries[query]++;
+
+            // Save to localStorage
+            localStorage.setItem('mindspanai_analytics', JSON.stringify(analytics));
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
