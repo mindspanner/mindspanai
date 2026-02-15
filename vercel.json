@@ -24,9 +24,4 @@
       "dest": "/$1"
     }
   ],
-  "env": {
-    "OPENROUTER_API_KEY": "@openrouter-api-key",
-    "SUPABASE_URL": "@supabase-url",
-    "SUPABASE_ANON_KEY": "@supabase-anon-key"
-  }
 }
