@@ -187,33 +187,33 @@
             background: rgba(255,255,255,0.35);
         }
         
-        /* Quick Actions - Enterprise Design */
+        /* Quick Actions - Compact Design Below Header */
         .quick-actions {
-            padding: 16px;
+            padding: 10px 12px;
             background: linear-gradient(to bottom, #fafbfc, var(--surface));
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .quick-actions.minimized {
             max-height: 0;
             padding: 0;
             opacity: 0;
             overflow: hidden;
         }
-        
+
         .quick-actions-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
         }
-        
+
         .quick-action {
             background: var(--surface);
             border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 18px 12px;
+            border-radius: var(--radius-sm);
+            padding: 8px 6px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -262,21 +262,22 @@
         }
         
         .quick-action-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 20px;
+            margin-bottom: 4px;
             position: relative;
             z-index: 1;
             filter: grayscale(0.15);
             transition: all 0.3s;
         }
-        
+
         .quick-action-label {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 600;
             color: var(--text);
             position: relative;
             z-index: 1;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
         }
         
         /* Messages */
@@ -492,20 +493,20 @@
             
             .quick-actions-grid {
                 grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
+                gap: 8px;
             }
-            
+
             .quick-action {
-                padding: 16px 10px;
+                padding: 10px 8px;
             }
-            
+
             .quick-action-icon {
-                font-size: 28px;
-                margin-bottom: 8px;
+                font-size: 22px;
+                margin-bottom: 4px;
             }
-            
+
             .quick-action-label {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 600;
             }
         }
