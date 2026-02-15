@@ -1,0 +1,134 @@
+═══════════════════════════════════════════════════════════════
+  MINDSPANAI V2.0 - DEPLOYMENT COMMANDS
+  Copy and paste these commands one at a time into Terminal
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Navigate to project directory
+═══════════════════════════════════════════════════════════════
+
+cd "/Users/ilker/Library/CloudStorage/GoogleDrive-mindspan.aus@gmail.com/My Drive/MindspanAI - Web"
+
+
+STEP 2: Login to Vercel (browser will open)
+═══════════════════════════════════════════════════════════════
+
+vercel login
+
+
+STEP 3: Deploy to Vercel Production
+═══════════════════════════════════════════════════════════════
+
+vercel --prod
+
+
+When prompted:
+- Set up and deploy? → YES (press Enter)
+- Which scope? → Select your account (use arrow keys, press Enter)
+- Link to existing project? → NO (press 'n' then Enter)
+- What's your project's name? → mindspanai (or press Enter for default)
+- In which directory is your code located? → ./ (press Enter)
+- Want to override the settings? → NO (press 'n' then Enter)
+
+Vercel will deploy and give you a URL like:
+https://mindspanai-xxxxxx.vercel.app
+
+COPY THIS URL! You'll need it for the next steps.
+
+
+STEP 4: Add Environment Variables in Vercel Dashboard
+═══════════════════════════════════════════════════════════════
+
+1. Open browser: https://vercel.com/dashboard
+2. Click on 'mindspanai' project
+3. Click 'Settings' (left sidebar)
+4. Click 'Environment Variables'
+5. Add variable:
+   Name: OPENROUTER_API_KEY
+   Value: (paste your key from https://openrouter.ai/keys)
+   Environment: Check all three boxes
+6. Click 'Save'
+7. Go to 'Deployments' tab
+8. Click three dots (...) next to latest deployment
+9. Click 'Redeploy' → 'Redeploy'
+10. Wait 30 seconds for completion
+
+
+STEP 5: Update SquareSpace
+═══════════════════════════════════════════════════════════════
+
+1. Login to www.mindspan.com.au admin
+2. Navigate to /agent page
+3. Edit the Code Block
+4. Update iframe src to your Vercel URL:
+
+<iframe
+    src="https://mindspanai-xxxxxx.vercel.app/"
+    width="100%"
+    height="900px"
+    frameborder="0"
+    style="border: none;"
+    title="MindspanAI Administrative Assistant"
+></iframe>
+
+5. Save and Publish
+
+
+STEP 6: Test!
+═══════════════════════════════════════════════════════════════
+
+Visit: www.mindspan.com.au/agent
+Ask: "What services do you offer?"
+Expected: AI-generated response (not keyword match)
+
+
+═══════════════════════════════════════════════════════════════
+  STATUS CHECKS
+═══════════════════════════════════════════════════════════════
+
+GitHub Status:
+✅ Authenticated as: mindspanner
+✅ Repository: https://github.com/mindspanner/mindspanai
+✅ V2 code deployed: YES
+
+Vercel CLI:
+✅ Installed: v50.17.1
+✅ Ready to deploy: YES
+
+What You Need:
+🔑 OpenRouter API key from: https://openrouter.ai/keys
+
+
+═══════════════════════════════════════════════════════════════
+  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+If "vercel login" doesn't open browser:
+- Copy the code shown in terminal
+- Open: https://vercel.com/login
+- Paste the code
+
+If deployment fails:
+- Check internet connection
+- Try: vercel --prod again
+- Check: Vercel dashboard for errors
+
+If AI doesn't work after deploy:
+- Verify: OPENROUTER_API_KEY is set in Vercel
+- Check: You clicked 'Redeploy' after adding env var
+- Wait: 1-2 minutes for changes to apply
+
+
+═══════════════════════════════════════════════════════════════
+  QUICK LINKS
+═══════════════════════════════════════════════════════════════
+
+OpenRouter API Keys: https://openrouter.ai/keys
+OpenRouter Activity: https://openrouter.ai/activity
+Vercel Dashboard: https://vercel.com/dashboard
+GitHub Repository: https://github.com/mindspanner/mindspanai
+SquareSpace Admin: www.mindspan.com.au/admin
+
+
+═══════════════════════════════════════════════════════════════
+
+START HERE: Copy the first command (cd ...) and paste into Terminal
