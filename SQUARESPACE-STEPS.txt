@@ -1,0 +1,43 @@
+═══════════════════════════════════════════════════════════════
+  SQUARESPACE SETUP - COPY AND PASTE THIS CODE
+═══════════════════════════════════════════════════════════════
+
+STEP 1: Log into SquareSpace at www.mindspan.com.au
+
+STEP 2: Navigate to Pages → /agent
+
+STEP 3: Edit the page → Clear all existing content
+
+STEP 4: Add a Code Block:
+   - Click the "+" button
+   - Search for "Code"
+   - Select "Code" block
+
+STEP 5: Copy EVERYTHING between the arrows below:
+
+👇 COPY FROM HERE 👇
+═══════════════════════════════════════════════════════════════
+<iframe
+    src="https://mindspanner.github.io/mindspanai/"
+    width="100%"
+    height="900px"
+    frameborder="0"
+    style="border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+    title="MindspanAI Administrative Assistant"
+></iframe>
+═══════════════════════════════════════════════════════════════
+👆 COPY TO HERE 👆
+
+STEP 6: Paste into the Code Block in SquareSpace
+
+STEP 7: Save the page
+
+STEP 8: Click "Publish" to make it live
+
+STEP 9: Test at https://www.mindspan.com.au/agent
+
+═══════════════════════════════════════════════════════════════
+
+✅ DONE! Your AI agent is now live!
+
+═══════════════════════════════════════════════════════════════
