@@ -10,7 +10,6 @@
         :root {
             --primary: #2c5f7d;
             --primary-dark: #1e4257;
-            --primary-light: #4a90a5;
             --accent: #e8956b;
             --bg: #f5f7fa;
             --surface: #ffffff;
@@ -36,8 +35,8 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
             color: var(--text);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
@@ -54,258 +53,155 @@
             background: var(--surface);
         }
         
-        /* Enterprise Header */
+        /* Compact Header */
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 16px 20px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-md);
             flex-shrink: 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            border-radius: 50%;
         }
         
         .header-left {
             display: flex;
             align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
+            gap: 10px;
         }
         
         .ai-badge {
-            background: rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
-            padding: 5px 12px;
-            border-radius: 14px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             display: flex;
             align-items: center;
-            gap: 5px;
-            border: 1px solid rgba(255,255,255,0.3);
+            gap: 4px;
         }
         
         .ai-badge::before {
             content: '✨';
-            font-size: 11px;
+            font-size: 12px;
         }
         
         .header-title {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 18px;
+            font-weight: 600;
         }
         
         .status-indicator {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--success);
             border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3);
             animation: pulse 2s infinite;
-            position: relative;
-            z-index: 1;
         }
         
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-                box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3);
-            }
-            50% {
-                opacity: 0.8;
-                box-shadow: 0 0 0 6px rgba(72, 187, 120, 0.1);
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         /* Emergency Banner */
         .emergency-banner {
-            background: linear-gradient(135deg, var(--danger) 0%, #e53e3e 100%);
+            background: var(--danger);
             color: white;
-            padding: 16px 20px;
+            padding: 12px 16px;
             display: none;
             font-size: 14px;
-            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
         }
         
         .emergency-banner.active {
             display: block;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-100%);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
         
         .emergency-contacts {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 10px;
         }
         
         .emergency-contacts a {
-            background: rgba(255,255,255,0.25);
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.2);
             color: white;
-            padding: 10px 12px;
+            padding: 8px;
             border-radius: var(--radius-sm);
             text-decoration: none;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 13px;
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: all 0.2s;
         }
         
-        .emergency-contacts a:active {
-            transform: scale(0.95);
-            background: rgba(255,255,255,0.35);
-        }
-        
-        /* Quick Actions - Enterprise Design */
+        /* Quick Actions */
         .quick-actions {
-            padding: 16px;
-            background: linear-gradient(to bottom, #fafbfc, var(--surface));
+            padding: 12px;
+            background: var(--bg);
             border-bottom: 1px solid var(--border);
+            overflow-x: auto;
             flex-shrink: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .quick-actions.minimized {
-            max-height: 0;
-            padding: 0;
-            opacity: 0;
-            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         .quick-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            display: flex;
+            gap: 8px;
+            min-width: min-content;
         }
         
         .quick-action {
             background: var(--surface);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-md);
-            padding: 18px 12px;
+            padding: 10px 14px;
+            min-width: 140px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            text-align: center;
-        }
-        
-        .quick-action::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            opacity: 0;
-            transition: opacity 0.3s;
+            transition: all 0.2s;
+            flex-shrink: 0;
         }
         
         .quick-action:active {
-            transform: scale(0.96);
-        }
-        
-        .quick-action.clicked {
-            animation: cardDismiss 0.5s cubic-bezier(0.4, 0, 1, 1) forwards;
-        }
-        
-        @keyframes cardDismiss {
-            0% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            40% {
-                opacity: 0.6;
-                transform: scale(0.92);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.85) translateY(-15px);
-                height: 0;
-                padding: 0;
-                margin: 0;
-                border: none;
-            }
+            transform: scale(0.98);
+            border-color: var(--primary);
         }
         
         .quick-action-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-            filter: grayscale(0.15);
-            transition: all 0.3s;
+            font-size: 20px;
+            margin-bottom: 4px;
         }
         
         .quick-action-label {
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 500;
             color: var(--text);
-            position: relative;
-            z-index: 1;
-            letter-spacing: 0.3px;
         }
         
         /* Messages */
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             -webkit-overflow-scrolling: touch;
-            background: linear-gradient(to bottom, var(--surface), var(--bg));
         }
         
         .message {
             display: flex;
-            gap: 10px;
-            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            gap: 8px;
+            animation: slideIn 0.3s ease;
         }
         
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .message.user {
@@ -313,16 +209,15 @@
         }
         
         .message-avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 16px;
+            font-weight: 600;
         }
         
         .message.assistant .message-avatar {
@@ -331,17 +226,16 @@
         }
         
         .message.user .message-avatar {
-            background: linear-gradient(135deg, var(--accent), #d67d52);
+            background: var(--accent);
             color: white;
         }
         
         .message-content {
             max-width: 75%;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: var(--radius-md);
             font-size: 15px;
-            line-height: 1.6;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            line-height: 1.5;
         }
         
         .message.assistant .message-content {
@@ -350,12 +244,12 @@
         }
         
         .message.user .message-content {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             color: white;
         }
         
         .message.system .message-content {
-            background: linear-gradient(135deg, #fff9e6, #fffbf0);
+            background: #fff3cd;
             border: 1px solid #ffeaa7;
             color: #856404;
             max-width: 100%;
@@ -365,26 +259,24 @@
         .message-content a {
             color: inherit;
             text-decoration: underline;
-            font-weight: 600;
         }
         
         /* Typing Indicator */
         .typing-indicator {
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         
         .typing-dots {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
         
         .typing-dots span {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             background: var(--text-light);
             border-radius: 50%;
             animation: typing 1.4s infinite;
@@ -394,69 +286,63 @@
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
         
         @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-            30% { transform: translateY(-10px); opacity: 1; }
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
         }
         
-        /* Input Area - Enterprise */
+        /* Input Area */
         .input-area {
-            padding: 16px;
+            padding: 12px;
             background: var(--surface);
             border-top: 1px solid var(--border);
             flex-shrink: 0;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
         }
         
         .input-wrapper {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: flex-end;
         }
         
         .input-field {
             flex: 1;
             background: var(--bg);
-            border: 2px solid var(--border);
-            border-radius: 22px;
-            padding: 12px 18px;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            padding: 10px 16px;
             font-size: 15px;
             font-family: inherit;
             resize: none;
-            max-height: 120px;
-            transition: all 0.2s;
+            max-height: 100px;
         }
         
         .input-field:focus {
             outline: none;
             border-color: var(--primary);
             background: var(--surface);
-            box-shadow: 0 0 0 3px rgba(44, 95, 125, 0.1);
         }
         
         .send-btn {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: var(--primary);
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(44, 95, 125, 0.3);
-            transition: all 0.2s;
         }
         
         .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            opacity: 0.4;
         }
         
-        .send-btn:active:not(:disabled) {
-            transform: scale(0.92);
+        .send-btn:active {
+            transform: scale(0.95);
         }
         
         /* Disclaimer */
@@ -464,49 +350,27 @@
             font-size: 11px;
             color: var(--text-light);
             text-align: center;
-            padding: 10px;
+            padding: 8px;
             background: var(--bg);
-            border-top: 1px solid var(--border);
         }
         
         /* Desktop */
         @media (min-width: 768px) {
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
-            
             .app-container {
                 max-width: 700px;
                 height: 90vh;
+                margin: 20px auto;
                 border-radius: var(--radius-lg);
-                box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-                overflow: hidden;
-            }
-            
-            .header {
-                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+                box-shadow: var(--shadow-lg);
             }
             
             .quick-actions-grid {
+                display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
             }
             
             .quick-action {
-                padding: 16px 10px;
-            }
-            
-            .quick-action-icon {
-                font-size: 28px;
-                margin-bottom: 8px;
-            }
-            
-            .quick-action-label {
-                font-size: 12px;
-                font-weight: 600;
+                min-width: auto;
             }
         }
         
@@ -515,9 +379,8 @@
             bottom: 8px;
             right: 8px;
             font-size: 10px;
-            color: rgba(255,255,255,0.6);
-            opacity: 0.8;
-            font-weight: 600;
+            color: var(--text-light);
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -541,21 +404,21 @@
             </div>
         </div>
         
-        <div class="quick-actions" id="quickActionsContainer">
-            <div class="quick-actions-grid" id="quickActionsGrid">
-                <div class="quick-action" onclick="sendQuickAction('What services?', this)">
+        <div class="quick-actions">
+            <div class="quick-actions-grid">
+                <div class="quick-action" onclick="sendQuickAction('What services?')">
                     <div class="quick-action-icon">🔍</div>
                     <div class="quick-action-label">Services</div>
                 </div>
-                <div class="quick-action" onclick="sendQuickAction('How do I book?', this)">
+                <div class="quick-action" onclick="sendQuickAction('How do I book?')">
                     <div class="quick-action-icon">📅</div>
                     <div class="quick-action-label">Book</div>
                 </div>
-                <div class="quick-action" onclick="sendQuickAction('Fees?', this)">
+                <div class="quick-action" onclick="sendQuickAction('Fees?')">
                     <div class="quick-action-icon">💰</div>
                     <div class="quick-action-label">Fees</div>
                 </div>
-                <div class="quick-action" onclick="sendQuickAction('First visit?', this)">
+                <div class="quick-action" onclick="sendQuickAction('First visit?')">
                     <div class="quick-action-icon">📋</div>
                     <div class="quick-action-label">First Visit</div>
                 </div>
@@ -583,7 +446,7 @@
         </div>
     </div>
     
-    <div class="version">v3.0.0</div>
+    <div class="version">v2.0.0-beta</div>
     
     <script src="app.js"></script>
 </body>

@@ -1,0 +1,16 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+cd "/Users/ilker/Library/CloudStorage/GoogleDrive-mindspan.aus@gmail.com/My Drive/MindspanAI - Web"
+
+spawn vercel --prod
+
+expect "Set up and deploy*" { send "y\r" }
+expect "Which scope*" { send "\r" }
+expect "Link to existing project*" { send "n\r" }
+expect "What's your project's name*" { send "mindspanai\r" }
+expect "In which directory*" { send "\r" }
+expect "Want to override*" { send "n\r" }
+
+expect eof

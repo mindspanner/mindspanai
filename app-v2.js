@@ -1,8 +1,8 @@
-// MindspanAI v3.0.0 - Client Application Logic
+// MindspanAI v2.0.0 - Client Application Logic
 
 const CONFIG = {
-    version: '3.0.0',
-    build: '20250216-1200',
+    version: '2.0.0',
+    build: '20250214-2000',
     apiEndpoint: '/api/chat',
     analyticsEndpoint: '/api/analytics'
 };
@@ -13,9 +13,6 @@ const EMERGENCY_KEYWORDS = [
     'crisis', 'emergency', 'cant go on', "can't go on",
     'hearing voices', 'seeing things', 'hurt myself', 'hurt someone'
 ];
-
-let clickedCardsCount = 0;
-const totalCards = 4;
 
 // Auto-resize textarea
 const input = document.getElementById('userInput');
@@ -80,26 +77,10 @@ function hideTyping() {
     if (typing) typing.remove();
 }
 
-// Send quick action with card dismiss animation
-function sendQuickAction(text, cardElement) {
-    // Add clicked class for animation
-    if (cardElement && !cardElement.classList.contains('clicked')) {
-        cardElement.classList.add('clicked');
-        clickedCardsCount++;
-        
-        // Minimize entire quick actions container after all cards clicked
-        if (clickedCardsCount >= totalCards) {
-            setTimeout(() => {
-                document.getElementById('quickActionsContainer').classList.add('minimized');
-            }, 600);
-        }
-    }
-    
-    // Small delay to show animation before sending
-    setTimeout(() => {
-        input.value = text;
-        sendMessage();
-    }, 100);
+// Send quick action
+function sendQuickAction(text) {
+    input.value = text;
+    sendMessage();
 }
 
 // Main send function
