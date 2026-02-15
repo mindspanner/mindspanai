@@ -1,0 +1,45 @@
+#!/bin/bash
+# Simple Vercel deployment - assumes Vercel CLI is installed
+
+cd "/Users/ilker/Library/CloudStorage/GoogleDrive-mindspan.aus@gmail.com/My Drive/MindspanAI - Web"
+
+echo "🚀 Deploying MindspanAI V2.0 to Vercel..."
+echo ""
+echo "This will:"
+echo "1. Login to Vercel (browser will open)"
+echo "2. Deploy the project"
+echo "3. Give you a production URL"
+echo ""
+echo "After deployment, you'll need to:"
+echo "• Add environment variables in Vercel dashboard"
+echo "• Update SquareSpace iframe with new URL"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Deploy to Vercel
+vercel --prod
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "✅ Deployment command executed!"
+echo ""
+echo "📋 NEXT STEPS (CRITICAL):"
+echo ""
+echo "1. Add Environment Variables in Vercel:"
+echo "   → https://vercel.com/dashboard"
+echo "   → Select 'mindspanai' project"
+echo "   → Settings → Environment Variables"
+echo "   → Add:"
+echo "     • OPENROUTER_API_KEY = (your key from openrouter.ai)"
+echo "     • SUPABASE_URL = (optional, from supabase.com)"
+echo "     • SUPABASE_ANON_KEY = (optional, from supabase.com)"
+echo "   → Save and Redeploy"
+echo ""
+echo "2. Update SquareSpace:"
+echo "   → www.mindspan.com.au/agent"
+echo "   → Change iframe src to your Vercel URL"
+echo ""
+echo "🎉 Done!"
+echo ""
