@@ -86,15 +86,22 @@ function sendQuickAction(text, cardElement) {
     if (cardElement && !cardElement.classList.contains('clicked')) {
         cardElement.classList.add('clicked');
         clickedCardsCount++;
-        
-        // Minimize entire quick actions container after all cards clicked
+
+        // Minimize entire quick actions container and show corner orb after all cards clicked
         if (clickedCardsCount >= totalCards) {
             setTimeout(() => {
                 document.getElementById('quickActionsContainer').classList.add('minimized');
+                // Show corner orb menu
+                const cornerOrb = document.getElementById('cornerOrbMenu');
+                if (cornerOrb) {
+                    setTimeout(() => {
+                        cornerOrb.classList.add('visible');
+                    }, 200);
+                }
             }, 600);
         }
     }
-    
+
     // Small delay to show animation before sending
     setTimeout(() => {
         input.value = text;

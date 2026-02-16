@@ -155,6 +155,146 @@
                 box-shadow: 0 0 0 6px rgba(72, 187, 120, 0.1);
             }
         }
+
+        /* Mindspan Orb Logo (Header) */
+        .mindspan-orb-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+                inset 0 3px 6px rgba(255, 255, 255, 0.2);
+            position: relative;
+            flex-shrink: 0;
+            animation: rotate-gradient-slow 8s linear infinite;
+        }
+
+        .mindspan-orb-logo::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(3px);
+        }
+
+        @keyframes rotate-gradient-slow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Corner Orb Menu */
+        .corner-orb-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .corner-orb-menu.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .orb-trigger {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.3),
+                inset 0 -5px 10px rgba(0, 0, 0, 0.2),
+                inset 0 5px 10px rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            position: relative;
+            animation: rotate-gradient-slow 8s linear infinite, float-orb 3s ease-in-out infinite;
+            transition: transform 0.3s;
+        }
+
+        .orb-trigger::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.7), transparent);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        .orb-trigger:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes float-orb {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .orb-dropdown {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            min-width: 180px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .corner-orb-menu:hover .orb-dropdown {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .orb-dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--text);
+        }
+
+        .orb-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .orb-dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding-left: 20px;
+        }
+
+        .orb-dropdown-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
         
         /* Emergency Banner */
         .emergency-banner {
@@ -547,12 +687,36 @@
     <div class="app-container">
         <div class="header">
             <div class="header-left">
+                <div class="mindspan-orb-logo"></div>
                 <div class="header-title">MindspanAI</div>
                 <div class="ai-badge">AI Powered</div>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
                 <a href="/admin/login.html" class="admin-icon" title="Admin Access">⚙️</a>
                 <div class="status-indicator"></div>
+            </div>
+        </div>
+
+        <!-- Corner Orb Menu (appears after cards clicked) -->
+        <div class="corner-orb-menu" id="cornerOrbMenu">
+            <div class="orb-trigger"></div>
+            <div class="orb-dropdown">
+                <div class="orb-dropdown-item" onclick="sendQuickAction('What services?')">
+                    <span class="orb-dropdown-icon">🔍</span>
+                    <span>Services</span>
+                </div>
+                <div class="orb-dropdown-item" onclick="sendQuickAction('How do I book?')">
+                    <span class="orb-dropdown-icon">📅</span>
+                    <span>Book</span>
+                </div>
+                <div class="orb-dropdown-item" onclick="sendQuickAction('Fees?')">
+                    <span class="orb-dropdown-icon">💰</span>
+                    <span>Fees</span>
+                </div>
+                <div class="orb-dropdown-item" onclick="sendQuickAction('First visit?')">
+                    <span class="orb-dropdown-icon">📋</span>
+                    <span>First Visit</span>
+                </div>
             </div>
         </div>
         

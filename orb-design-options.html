@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindspan AI Orb Design Options</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .option h2 {
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+
+        .orb-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            margin-bottom: 24px;
+        }
+
+        /* Option 1: Glassmorphic with subtle 3D */
+        .orb-glass {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                inset 0 -8px 16px rgba(0, 0, 0, 0.1),
+                inset 0 8px 16px rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: float-glass 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .orb-glass::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            filter: blur(10px);
+        }
+
+        @keyframes float-glass {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Option 2: Gradient sphere with strong depth */
+        .orb-gradient {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+                inset 0 10px 20px rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: rotate-gradient 6s linear infinite;
+            position: relative;
+        }
+
+        .orb-gradient::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(8px);
+        }
+
+        @keyframes rotate-gradient {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Option 3: Neon glow with pulsing effect */
+        .orb-neon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow:
+                0 0 20px rgba(102, 126, 234, 0.6),
+                0 0 40px rgba(118, 75, 162, 0.4),
+                0 0 60px rgba(102, 126, 234, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: pulse-neon 2s ease-in-out infinite;
+            position: relative;
+        }
+
+        .orb-neon::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+            filter: blur(8px);
+            opacity: 0.5;
+        }
+
+        @keyframes pulse-neon {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow:
+                    0 0 20px rgba(102, 126, 234, 0.6),
+                    0 0 40px rgba(118, 75, 162, 0.4),
+                    0 0 60px rgba(102, 126, 234, 0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow:
+                    0 0 30px rgba(102, 126, 234, 0.8),
+                    0 0 60px rgba(118, 75, 162, 0.6),
+                    0 0 90px rgba(102, 126, 234, 0.4);
+            }
+        }
+
+        /* Logo styling - simplified version for orb */
+        .mindspan-logo {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .features {
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .features li {
+            margin-bottom: 8px;
+        }
+
+        .vote-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .vote-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Mindspan AI Orb Design Options</h1>
+    <p class="subtitle">Choose your favorite design for the animated orb</p>
+
+    <div class="options-container">
+        <!-- Option 1 -->
+        <div class="option">
+            <h2>Option 1: Glassmorphic</h2>
+            <div class="orb-container">
+                <div class="orb-glass">
+                    <svg class="mindspan-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 10 C30 10, 20 20, 20 35 C20 45, 25 50, 35 55 C25 60, 20 65, 20 75 C20 85, 30 95, 50 95 M50 10 C70 10, 80 20, 80 35 C80 45, 75 50, 65 55 C75 60, 80 65, 80 75 C80 85, 70 95, 50 95"
+                              fill="none"
+                              stroke="white"
+                              stroke-width="4"
+                              stroke-linecap="round"/>
+                        <circle cx="50" cy="52" r="8" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+            <ul class="features">
+                <li>✨ Subtle glass effect</li>
+                <li>🌊 Gentle floating animation</li>
+                <li>💎 Premium, minimalist look</li>
+                <li>🎯 Best for: Clean, modern aesthetic</li>
+            </ul>
+            <button class="vote-btn" onclick="vote(1)">Choose Option 1</button>
+        </div>
+
+        <!-- Option 2 -->
+        <div class="option">
+            <h2>Option 2: Gradient Sphere</h2>
+            <div class="orb-container">
+                <div class="orb-gradient">
+                    <svg class="mindspan-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 10 C30 10, 20 20, 20 35 C20 45, 25 50, 35 55 C25 60, 20 65, 20 75 C20 85, 30 95, 50 95 M50 10 C70 10, 80 20, 80 35 C80 45, 75 50, 65 55 C75 60, 80 65, 80 75 C80 85, 70 95, 50 95"
+                              fill="none"
+                              stroke="white"
+                              stroke-width="4"
+                              stroke-linecap="round"/>
+                        <circle cx="50" cy="52" r="8" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+            <ul class="features">
+                <li>🌈 Rich color gradients</li>
+                <li>🔄 Subtle color rotation</li>
+                <li>💫 Strong 3D depth effect</li>
+                <li>🎯 Best for: Eye-catching, vibrant</li>
+            </ul>
+            <button class="vote-btn" onclick="vote(2)">Choose Option 2</button>
+        </div>
+
+        <!-- Option 3 -->
+        <div class="option">
+            <h2>Option 3: Neon Glow</h2>
+            <div class="orb-container">
+                <div class="orb-neon">
+                    <svg class="mindspan-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 10 C30 10, 20 20, 20 35 C20 45, 25 50, 35 55 C25 60, 20 65, 20 75 C20 85, 30 95, 50 95 M50 10 C70 10, 80 20, 80 35 C80 45, 75 50, 65 55 C75 60, 80 65, 80 75 C80 85, 70 95, 50 95"
+                              fill="none"
+                              stroke="white"
+                              stroke-width="4"
+                              stroke-linecap="round"/>
+                        <circle cx="50" cy="52" r="8" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+            <ul class="features">
+                <li>⚡ Glowing neon effect</li>
+                <li>💓 Pulsing animation</li>
+                <li>✨ Attention-grabbing</li>
+                <li>🎯 Best for: Dynamic, energetic</li>
+            </ul>
+            <button class="vote-btn" onclick="vote(3)">Choose Option 3</button>
+        </div>
+    </div>
+
+    <script>
+        function vote(option) {
+            alert(`You selected Option ${option}!\n\nThis design will be used for:\n• Corner menu orb\n• Header logo beside "AI Powered"\n• Quick action cards animation\n\nI'll implement this now!`);
+            console.log(`User selected orb design option: ${option}`);
+        }
+    </script>
+</body>
+</html>

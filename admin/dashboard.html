@@ -283,15 +283,16 @@
             <div class="card">
                 <h2>Automatic Website Scraping</h2>
                 <div class="alert alert-info">
-                    <strong>Single Source of Truth:</strong> MindspanAI automatically scrapes www.mindspan.com.au daily at 2:00 AM to stay updated with the latest information.
+                    <strong>Real-Time Sync:</strong> MindspanAI automatically scrapes www.mindspan.com.au + Halaxy profile every hour to stay updated with the latest information.
                 </div>
 
                 <div class="scrape-info">
                     <p><strong>Last Scrape:</strong> <span id="lastScrape">Never</span></p>
                     <p><strong>Pages Monitored:</strong> 7 (Homepage, About, Services, Fees, FAQ, Contact, Halaxy Profile)</p>
                     <p><strong>Sources:</strong> www.mindspan.com.au + Halaxy profile</p>
+                    <p><strong>Sync Frequency:</strong> <span class="status-badge status-success">Every Hour</span></p>
                     <p><strong>Status:</strong> <span id="scrapeStatus" class="status-badge status-success">Active</span></p>
-                    <p><strong>Next Scheduled:</strong> <span id="nextScrape">Tomorrow at 2:00 AM</span></p>
+                    <p><strong>Next Scrape:</strong> <span id="nextScrape">Top of next hour</span></p>
                 </div>
 
                 <button class="btn" onclick="runScrapeNow()">🔄 Run Scrape Now</button>
