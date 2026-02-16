@@ -352,8 +352,9 @@ export default async function handler(request) {
         const responseText = aiData.choices[0].message.content;
 
         return new Response(
-            JSON.stringify({ 
-                response: responseText,
+            JSON.stringify({
+                reply: responseText,
+                response: responseText, // Legacy support
                 model: 'gpt-3.5-turbo',
                 sessionId
             }),
@@ -363,9 +364,10 @@ export default async function handler(request) {
     } catch (error) {
         console.error('Chat API error:', error);
         return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
                 error: 'Internal error',
-                response: getFallbackResponse('error')
+                reply: getFallbackResponse('error'),
+                response: getFallbackResponse('error') // Legacy support
             }),
             { status: 500, headers }
         );
