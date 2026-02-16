@@ -104,14 +104,17 @@ async function verifyGoogleToken(token) {
         );
 
         if (!response.ok) {
+            console.error('Token verification failed:', response.status, await response.text());
             return null;
         }
 
         const data = await response.json();
+        console.log('Token data:', { aud: data.aud, email: data.email, email_verified: data.email_verified });
+        console.log('Expected CLIENT_ID:', GOOGLE_CLIENT_ID);
 
         // Verify audience (client ID)
         if (GOOGLE_CLIENT_ID && data.aud !== GOOGLE_CLIENT_ID) {
-            console.error('Invalid audience');
+            console.error('Invalid audience. Expected:', GOOGLE_CLIENT_ID, 'Got:', data.aud);
             return null;
         }
 
@@ -121,6 +124,7 @@ async function verifyGoogleToken(token) {
             return null;
         }
 
+        console.log('Token verified successfully for:', data.email);
         return data;
 
     } catch (error) {

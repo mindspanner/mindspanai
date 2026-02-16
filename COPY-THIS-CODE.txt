@@ -1,0 +1,77 @@
+═══════════════════════════════════════════════════════════════
+  MINDSPANAI GRADIENT ORB WIDGET - SQUARESPACE CODE
+═══════════════════════════════════════════════════════════════
+
+🎯 OPTION SELECTED: Full Widget Embed (Option 2)
+
+📍 IMPLEMENTATION: Site-Wide (Appears on every page)
+
+-------------------------------------------------------------------
+WHERE TO PASTE THIS CODE:
+-------------------------------------------------------------------
+
+SquareSpace Dashboard → Settings → Advanced → Code Injection → Footer
+
+-------------------------------------------------------------------
+CODE TO COPY (Copy everything below the line):
+-------------------------------------------------------------------
+
+<!-- MindspanAI Gradient Orb Chat Widget -->
+<iframe
+    src="https://mindspanai.vercel.app/widget-embed.html"
+    style="position: fixed; bottom: 0; right: 0; width: 100%; height: 100%; border: none; z-index: 999999; pointer-events: none;"
+    allow="clipboard-write"
+    id="mindspan-widget"
+></iframe>
+
+<script>
+// Enable interactions only on widget elements
+(function() {
+    const widget = document.getElementById('mindspan-widget');
+    if (widget) {
+        widget.addEventListener('load', function() {
+            // Allow clicks to pass through to widget button/window
+            this.style.pointerEvents = 'auto';
+        });
+    }
+})();
+</script>
+
+-------------------------------------------------------------------
+END OF CODE
+-------------------------------------------------------------------
+
+✅ AFTER PASTING:
+
+1. Click "Save" in Code Injection
+2. Hard refresh your site (Cmd+Shift+R or Ctrl+F5)
+3. Look for gradient orb in bottom-right corner
+4. Click orb to test chat window
+
+🎨 WHAT YOU'LL SEE:
+
+- Beautiful gradient purple orb (bottom-right)
+- Gentle floating animation
+- Subtle color rotation
+- Click → Chat window opens
+- Close (×) → Window closes
+
+📱 MOBILE:
+
+- Orb stays in bottom-right
+- Click → Fullscreen chat (optimized)
+- Smooth, app-like experience
+
+🔗 PREVIEW FIRST:
+
+Visit: https://mindspanai.vercel.app/widget-embed.html
+(Test the widget before adding to your site)
+
+═══════════════════════════════════════════════════════════════
+
+🆘 NEED HELP?
+
+Email: info@mindspan.com.au
+Include: Screenshot + description of issue
+
+═══════════════════════════════════════════════════════════════
