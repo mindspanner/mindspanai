@@ -6,23 +6,28 @@
 
 ## 🎯 Core Principle
 
-**The website is the ONLY authoritative source**
+**Two authoritative sources (automatically synced)**
 
 ```
-www.mindspan.com.au (TRUTH)
+www.mindspan.com.au (TRUTH #1) + Halaxy Profile (TRUTH #2)
     ↓
 Automatic scraping every 24 hours
     ↓
 Updates AI knowledge base
     ↓
-MindspanAI always matches website
+MindspanAI always matches both sources
 ```
+
+**Sources:**
+1. **www.mindspan.com.au** - Main website (services, about, fees, contact, FAQ)
+2. **Halaxy Profile** - Professional booking profile (qualifications, specializations, availability)
 
 **Benefits:**
 - ✅ Zero information mismatch
-- ✅ Update website → AI updates automatically
+- ✅ Update either source → AI updates automatically
 - ✅ No manual data entry
 - ✅ Always current and accurate
+- ✅ Comprehensive coverage (website + booking platform)
 
 ---
 
@@ -70,7 +75,30 @@ MindspanAI always matches website
 - Location info
 - Accessibility
 
-### **7. Telehealth Info** (`/telehealth`)
+### **7. Halaxy Profile** (NEW!)
+**URL**: `https://www.halaxy.com/profile/ilker-abak/psychologist/359455?clinic=359358`
+
+**What it provides:**
+- Detailed qualifications & certifications
+- Professional specializations
+- Conditions treated (comprehensive list)
+- Therapeutic modalities used
+- Languages spoken
+- Professional memberships (AHPRA, MAPS, MIAAN)
+- Clinic locations & hours
+- Real-time availability
+- Booking integration
+- Patient reviews & ratings
+- Additional services not on main website
+
+**Why it's important:**
+- More comprehensive than main website
+- Regularly updated by Ilker
+- Official professional profile
+- Contains booking-specific details
+- Shows current availability
+
+### **8. Telehealth Info** (`/telehealth`)
 - How it works
 - Tech requirements
 - Benefits

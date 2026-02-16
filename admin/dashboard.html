@@ -288,7 +288,8 @@
 
                 <div class="scrape-info">
                     <p><strong>Last Scrape:</strong> <span id="lastScrape">Never</span></p>
-                    <p><strong>Pages Monitored:</strong> 6 (Homepage, About, Services, Fees, FAQ, Contact)</p>
+                    <p><strong>Pages Monitored:</strong> 7 (Homepage, About, Services, Fees, FAQ, Contact, Halaxy Profile)</p>
+                    <p><strong>Sources:</strong> www.mindspan.com.au + Halaxy profile</p>
                     <p><strong>Status:</strong> <span id="scrapeStatus" class="status-badge status-success">Active</span></p>
                     <p><strong>Next Scheduled:</strong> <span id="nextScrape">Tomorrow at 2:00 AM</span></p>
                 </div>
@@ -475,7 +476,7 @@ Suicide Call Back: 1300 659 467</textarea>
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert(`✅ Scrape completed!\n\nPages scraped: ${data.scrapedPages}\nTimestamp: ${new Date(data.timestamp).toLocaleString()}`);
+                    alert(`✅ Scrape completed!\n\nPages scraped: ${data.scrapedPages}\nSources: www.mindspan.com.au + Halaxy profile\nTimestamp: ${new Date(data.timestamp).toLocaleString()}\n\nThe AI knowledge base is now synced with the latest information!`);
                     document.getElementById('lastScrape').textContent = new Date(data.timestamp).toLocaleString();
                 } else {
                     alert('❌ Scrape failed: ' + (data.error || 'Unknown error'));

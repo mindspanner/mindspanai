@@ -6,12 +6,13 @@ export const config = {
 };
 
 const PAGES_TO_SCRAPE = [
-    { url: 'https://www.mindspan.com.au/', name: 'homepage' },
-    { url: 'https://www.mindspan.com.au/about', name: 'about' },
-    { url: 'https://www.mindspan.com.au/services', name: 'services' },
-    { url: 'https://www.mindspan.com.au/fees', name: 'fees' },
-    { url: 'https://www.mindspan.com.au/faq', name: 'faq' },
-    { url: 'https://www.mindspan.com.au/contact', name: 'contact' }
+    { url: 'https://www.mindspan.com.au/', name: 'homepage', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/about', name: 'about', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/services', name: 'services', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/fees', name: 'fees', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/faq', name: 'faq', priority: 'medium' },
+    { url: 'https://www.mindspan.com.au/contact', name: 'contact', priority: 'medium' },
+    { url: 'https://www.halaxy.com/profile/ilker-abak/psychologist/359455?clinic=359358', name: 'halaxy_profile', priority: 'high' }
 ];
 
 export default async function handler(request) {
