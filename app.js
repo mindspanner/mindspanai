@@ -87,16 +87,27 @@ function sendQuickAction(text, cardElement) {
         cardElement.classList.add('clicked');
         clickedCardsCount++;
 
+        console.log(`Card clicked: ${clickedCardsCount}/${totalCards}`);
+
         // Minimize entire quick actions container and show corner orb after all cards clicked
         if (clickedCardsCount >= totalCards) {
+            console.log('All cards clicked! Showing corner orb...');
             setTimeout(() => {
-                document.getElementById('quickActionsContainer').classList.add('minimized');
+                const container = document.getElementById('quickActionsContainer');
+                if (container) {
+                    container.classList.add('minimized');
+                    console.log('Container minimized');
+                }
+
                 // Show corner orb menu
                 const cornerOrb = document.getElementById('cornerOrbMenu');
                 if (cornerOrb) {
                     setTimeout(() => {
                         cornerOrb.classList.add('visible');
+                        console.log('Corner orb now visible');
                     }, 200);
+                } else {
+                    console.error('Corner orb element not found!');
                 }
             }, 600);
         }
@@ -107,6 +118,12 @@ function sendQuickAction(text, cardElement) {
         input.value = text;
         sendMessage();
     }, 100);
+}
+
+// Send message from orb dropdown (no card element needed)
+function sendMessageFromOrb(text) {
+    input.value = text;
+    sendMessage();
 }
 
 // Main send function
