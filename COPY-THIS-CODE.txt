@@ -1,77 +1,57 @@
-═══════════════════════════════════════════════════════════════
-  MINDSPANAI GRADIENT ORB WIDGET - SQUARESPACE CODE
-═══════════════════════════════════════════════════════════════
+===========================================
+SQUARESPACE CODE INJECTION - UPDATED v3.3.0
+===========================================
 
-🎯 OPTION SELECTED: Full Widget Embed (Option 2)
+INSTRUCTIONS:
+1. Go to: SquareSpace → Settings → Advanced → Code Injection
+2. Paste the code below into the FOOTER section
+3. Save
+4. Hard refresh your site (Cmd+Shift+R or Ctrl+F5)
+5. Look for the gradient orb in bottom-right corner
 
-📍 IMPLEMENTATION: Site-Wide (Appears on every page)
+-------------------------------------------
+PASTE THIS CODE INTO FOOTER:
+-------------------------------------------
 
--------------------------------------------------------------------
-WHERE TO PASTE THIS CODE:
--------------------------------------------------------------------
-
-SquareSpace Dashboard → Settings → Advanced → Code Injection → Footer
-
--------------------------------------------------------------------
-CODE TO COPY (Copy everything below the line):
--------------------------------------------------------------------
-
-<!-- MindspanAI Gradient Orb Chat Widget -->
 <iframe
-    src="https://mindspanai.vercel.app/widget-embed.html"
-    style="position: fixed; bottom: 0; right: 0; width: 100%; height: 100%; border: none; z-index: 999999; pointer-events: none;"
-    allow="clipboard-write"
-    id="mindspan-widget"
+  src="https://mindspanai.vercel.app/widget-embed.html"
+  style="position: fixed; bottom: 0; right: 0; width: 100%; height: 100%; border: none; pointer-events: none; z-index: 9999;"
+  id="mindspanai-widget"
 ></iframe>
 
 <script>
-// Enable interactions only on widget elements
-(function() {
-    const widget = document.getElementById('mindspan-widget');
-    if (widget) {
-        widget.addEventListener('load', function() {
-            // Allow clicks to pass through to widget button/window
-            this.style.pointerEvents = 'auto';
-        });
-    }
-})();
+// Allow pointer events on the widget iframe
+document.getElementById('mindspanai-widget').style.pointerEvents = 'all';
 </script>
 
--------------------------------------------------------------------
-END OF CODE
--------------------------------------------------------------------
+-------------------------------------------
+DONE!
+-------------------------------------------
 
-✅ AFTER PASTING:
+The gradient orb chat widget will now appear in the bottom-right corner of your site.
 
-1. Click "Save" in Code Injection
-2. Hard refresh your site (Cmd+Shift+R or Ctrl+F5)
-3. Look for gradient orb in bottom-right corner
-4. Click orb to test chat window
+WHAT YOU'LL SEE:
+- Floating gradient orb in bottom-right (60px)
+- Hand cursor when hovering over orb ✓
+- Click orb → Chat window opens
+- ChatGPT-style interface
+- Mindspan gradient branding throughout
 
-🎨 WHAT YOU'LL SEE:
+TROUBLESHOOTING:
+- If not visible: Hard refresh (Cmd+Shift+R)
+- If covered by other elements: The z-index is 9999 (highest priority)
+- If not clickable: Check the code injection saved correctly
 
-- Beautiful gradient purple orb (bottom-right)
-- Gentle floating animation
-- Subtle color rotation
-- Click → Chat window opens
-- Close (×) → Window closes
+-------------------------------------------
+ALTERNATIVE: Embed on Specific Page Only
+-------------------------------------------
 
-📱 MOBILE:
+If you want the widget on ONLY the /agent page:
 
-- Orb stays in bottom-right
-- Click → Fullscreen chat (optimized)
-- Smooth, app-like experience
+1. Go to: Pages → /agent → Settings → Advanced → Page Header Code Injection
+2. Paste the same code above
+3. Save
 
-🔗 PREVIEW FIRST:
+This will show the widget ONLY on www.mindspan.com.au/agent
 
-Visit: https://mindspanai.vercel.app/widget-embed.html
-(Test the widget before adding to your site)
-
-═══════════════════════════════════════════════════════════════
-
-🆘 NEED HELP?
-
-Email: info@mindspan.com.au
-Include: Screenshot + description of issue
-
-═══════════════════════════════════════════════════════════════
+===========================================
