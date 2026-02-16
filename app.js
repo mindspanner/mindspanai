@@ -1,10 +1,9 @@
-// MindspanAI v3.0.0 - Client Application Logic
+// MindspanAI v3.2.0 - ChatGPT-Style Interface
 
 const CONFIG = {
-    version: '3.0.0',
-    build: '20250216-1200',
-    apiEndpoint: '/api/chat',
-    analyticsEndpoint: '/api/analytics'
+    version: '3.2.0',
+    build: '20260216-1400',
+    apiEndpoint: '/api/chat'
 };
 
 const EMERGENCY_KEYWORDS = [
@@ -14,220 +13,228 @@ const EMERGENCY_KEYWORDS = [
     'hearing voices', 'seeing things', 'hurt myself', 'hurt someone'
 ];
 
-let clickedCardsCount = 0;
-const totalCards = 4;
+// DOM Elements
+const input = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const messagesContainer = document.getElementById('messagesContainer');
+const welcomeScreen = document.getElementById('welcomeScreen');
+const chatArea = document.getElementById('chatArea');
+const emergencyBanner = document.getElementById('emergencyBanner');
+
+// Enable/disable send button based on input
+input.addEventListener('input', () => {
+    sendBtn.disabled = !input.value.trim();
+});
 
 // Auto-resize textarea
-const input = document.getElementById('userInput');
-input.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
+function adjustTextareaHeight(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+}
 
-// Send on Enter (Shift+Enter for new line)
-input.addEventListener('keydown', function(e) {
+// Handle enter key
+function handleKeyPress(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        sendMessage();
-    }
-});
-
-// Check for emergency
-function checkEmergency(text) {
-    return EMERGENCY_KEYWORDS.some(kw => text.toLowerCase().includes(kw));
-}
-
-// Display message
-function displayMessage(role, content) {
-    const container = document.getElementById('messagesContainer');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${role}`;
-    
-    let html = '';
-    
-    if (role !== 'system') {
-        const avatarText = role === 'user' ? 'You' : 'AI';
-        html += `<div class="message-avatar">${avatarText[0]}</div>`;
-    }
-    
-    html += `<div class="message-content">${content}</div>`;
-    
-    messageDiv.innerHTML = html;
-    container.appendChild(messageDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-// Show/hide typing indicator
-function showTyping() {
-    const container = document.getElementById('messagesContainer');
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'message assistant';
-    typingDiv.id = 'typingIndicator';
-    typingDiv.innerHTML = `
-        <div class="message-avatar">AI</div>
-        <div class="typing-indicator">
-            <div class="typing-dots">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-    `;
-    container.appendChild(typingDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-function hideTyping() {
-    const typing = document.getElementById('typingIndicator');
-    if (typing) typing.remove();
-}
-
-// Send quick action with card dismiss animation
-function sendQuickAction(text, cardElement) {
-    // Add clicked class for animation
-    if (cardElement && !cardElement.classList.contains('clicked')) {
-        cardElement.classList.add('clicked');
-        clickedCardsCount++;
-
-        console.log(`Card clicked: ${clickedCardsCount}/${totalCards}`);
-
-        // Minimize entire quick actions container and show corner orb after all cards clicked
-        if (clickedCardsCount >= totalCards) {
-            console.log('All cards clicked! Showing corner orb...');
-            setTimeout(() => {
-                const container = document.getElementById('quickActionsContainer');
-                if (container) {
-                    container.classList.add('minimized');
-                    console.log('Container minimized');
-                }
-
-                // Show corner orb menu
-                const cornerOrb = document.getElementById('cornerOrbMenu');
-                if (cornerOrb) {
-                    setTimeout(() => {
-                        cornerOrb.classList.add('visible');
-                        console.log('Corner orb now visible');
-                    }, 200);
-                } else {
-                    console.error('Corner orb element not found!');
-                }
-            }, 600);
+        if (input.value.trim()) {
+            sendMessage();
         }
     }
-
-    // Small delay to show animation before sending
-    setTimeout(() => {
-        input.value = text;
-        sendMessage();
-    }, 100);
 }
 
-// Send message from orb dropdown (no card element needed)
-function sendMessageFromOrb(text) {
+// Send quick message from sidebar or quick actions
+function sendQuickMessage(text) {
     input.value = text;
+    sendBtn.disabled = false;
     sendMessage();
 }
 
-// Main send function
+// Send message
 async function sendMessage() {
     const message = input.value.trim();
     if (!message) return;
-    
-    const sendBtn = document.getElementById('sendBtn');
-    sendBtn.disabled = true;
-    
-    // Check emergency
-    if (checkEmergency(message)) {
-        document.getElementById('emergencyBanner').classList.add('active');
-        displayMessage('user', message);
-        displayMessage('system', 
-            '<strong>🚨 This is not a crisis service.</strong><br>' +
-            'If you\'re in immediate danger, contact emergency services above.'
-        );
-        logInteraction(message, 'emergency', true);
-        input.value = '';
-        input.style.height = 'auto';
-        sendBtn.disabled = false;
-        return;
+
+    // Hide welcome, show messages
+    if (welcomeScreen.style.display !== 'none') {
+        welcomeScreen.style.display = 'none';
+        messagesContainer.style.display = 'flex';
     }
-    
-    // Display user message
-    displayMessage('user', message);
+
+    // Add user message
+    addMessage('user', message);
+
+    // Clear input
     input.value = '';
     input.style.height = 'auto';
-    
-    // Show typing
-    showTyping();
-    
+    sendBtn.disabled = true;
+
+    // Check for emergency keywords
+    checkEmergency(message);
+
+    // Show typing indicator
+    const typingId = 'typing-' + Date.now();
+    addTypingIndicator(typingId);
+
+    // Call API
     try {
-        // Call API
-        const response = await fetch(CONFIG.apiEndpoint, {
+        const response = await fetch('/api/chat', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                message,
-                sessionId: getSessionId()
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
         });
-        
-        hideTyping();
-        
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
-        
+
         const data = await response.json();
-        displayMessage('assistant', data.response);
-        
-        // Log interaction
-        logInteraction(message, data.response, false);
-        
+
+        // Remove typing indicator
+        removeTypingIndicator(typingId);
+
+        // Add AI response
+        if (data.reply) {
+            addMessage('assistant', data.reply);
+        }
+
+        // Store in localStorage for analytics
+        logMessage({ role: 'user', content: message, timestamp: Date.now() });
+        logMessage({ role: 'assistant', content: data.reply, timestamp: Date.now() });
+
     } catch (error) {
-        hideTyping();
-        displayMessage('system', 
-            '❌ Connection error. Please try again or contact us:<br>' +
-            '📧 <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a> | ' +
-            '📞 <a href="tel:0451614155">0451 614 155</a>'
-        );
-        console.error('Error:', error);
+        console.error('Chat error:', error);
+        removeTypingIndicator(typingId);
+        addMessage('assistant', 'Sorry, I encountered an error. Please try again or visit <a href="https://www.mindspan.com.au" target="_blank">mindspan.com.au</a> for direct contact.');
     }
-    
-    sendBtn.disabled = false;
 }
 
-// Analytics
-function logInteraction(userMsg, assistantMsg, isEmergency) {
-    const log = {
-        timestamp: new Date().toISOString(),
-        userMessage: userMsg.substring(0, 200),
-        responsePreview: typeof assistantMsg === 'string' ? assistantMsg.substring(0, 100) : 'API',
-        isEmergency: isEmergency,
-        sessionId: getSessionId()
+// Add message to chat
+function addMessage(role, content) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = role === 'user' ? 'Y' : 'AI';
+
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    messageContent.innerHTML = formatMessage(content);
+
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(messageContent);
+
+    messagesContainer.appendChild(messageDiv);
+
+    // Scroll to bottom smoothly
+    chatArea.scrollTo({
+        top: chatArea.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+// Format message content
+function formatMessage(content) {
+    // Convert URLs to links
+    let formatted = content.replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank">$1</a>'
+    );
+
+    // Convert line breaks to <br>
+    formatted = formatted.replace(/\n/g, '<br>');
+
+    return formatted;
+}
+
+// Add typing indicator
+function addTypingIndicator(id) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant';
+    messageDiv.id = id;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = 'AI';
+
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.innerHTML = `
+        <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(typingDiv);
+
+    messagesContainer.appendChild(messageDiv);
+
+    // Scroll to bottom
+    chatArea.scrollTo({
+        top: chatArea.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+// Remove typing indicator
+function removeTypingIndicator(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.remove();
+    }
+}
+
+// Check for emergency keywords
+function checkEmergency(message) {
+    const lowerMessage = message.toLowerCase();
+    const isEmergency = EMERGENCY_KEYWORDS.some(keyword => lowerMessage.includes(keyword));
+
+    if (isEmergency) {
+        emergencyBanner.classList.add('show');
+        // Scroll to top to show banner
+        chatArea.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Log message to localStorage
+function logMessage(messageData) {
+    try {
+        const logs = JSON.parse(localStorage.getItem('mindspanai_logs') || '[]');
+        logs.push(messageData);
+
+        // Keep only last 100 messages
+        if (logs.length > 100) {
+            logs.splice(0, logs.length - 100);
+        }
+
+        localStorage.setItem('mindspanai_logs', JSON.stringify(logs));
+    } catch (error) {
+        console.error('Logging error:', error);
+    }
+}
+
+// Focus input on load
+window.addEventListener('load', () => {
+    input.focus();
+});
+
+// Log page view
+try {
+    const viewData = {
+        type: 'page_view',
+        timestamp: Date.now(),
+        userAgent: navigator.userAgent,
+        version: CONFIG.version
     };
-    
-    // Local storage
-    let logs = JSON.parse(localStorage.getItem('mindspanai_logs') || '[]');
-    logs.push(log);
-    if (logs.length > 100) logs = logs.slice(-100);
-    localStorage.setItem('mindspanai_logs', JSON.stringify(logs));
-    
-    // Backend analytics (fire-and-forget)
-    fetch(CONFIG.analyticsEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(log)
-    }).catch(() => {}); // Silent fail OK
+
+    const views = JSON.parse(localStorage.getItem('mindspanai_views') || '[]');
+    views.push(viewData);
+    localStorage.setItem('mindspanai_views', JSON.stringify(views));
+} catch (error) {
+    console.error('Analytics error:', error);
 }
 
-function getSessionId() {
-    let sid = sessionStorage.getItem('mindspanai_session');
-    if (!sid) {
-        sid = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        sessionStorage.setItem('mindspanai_session', sid);
-    }
-    return sid;
-}
-
-// Initialize
-console.log(`MindspanAI ${CONFIG.version} (Build ${CONFIG.build})`);
-console.log(`Session: ${getSessionId()}`);
+console.log(`%cMindspanAI v${CONFIG.version}`, 'color: #667eea; font-size: 16px; font-weight: bold;');
+console.log('Built with ❤️ for Mindspan Psychology');

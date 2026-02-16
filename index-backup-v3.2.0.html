@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MindspanAI | Your 24/7 Assistant</title>
+    <meta name="description" content="Chat with MindspanAI – your intelligent assistant for Mindspan Psychology services, booking, and support.">
+    
+    <style>
+        :root {
+            --primary: #2c5f7d;
+            --primary-dark: #1e4257;
+            --primary-light: #4a90a5;
+            --accent: #e8956b;
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --success: #48bb78;
+            --danger: #f56565;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--surface);
+        }
+        
+        /* Enterprise Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .ai-badge {
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .ai-badge::before {
+            content: '✨';
+            font-size: 11px;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3);
+            animation: pulse 2s infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-icon {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.2s;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .admin-icon:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3);
+            }
+            50% {
+                opacity: 0.8;
+                box-shadow: 0 0 0 6px rgba(72, 187, 120, 0.1);
+            }
+        }
+
+        /* Mindspan Orb Logo (Header) */
+        .mindspan-orb-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+                inset 0 3px 6px rgba(255, 255, 255, 0.2);
+            position: relative;
+            flex-shrink: 0;
+            animation: rotate-gradient-slow 8s linear infinite;
+        }
+
+        .mindspan-orb-logo::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(3px);
+        }
+
+        @keyframes rotate-gradient-slow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Corner Orb Menu */
+        .corner-orb-menu {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .corner-orb-menu.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Ensure dropdown is always interactive when menu is visible */
+        .corner-orb-menu.visible .orb-dropdown {
+            pointer-events: all;
+        }
+
+        .orb-trigger {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.3),
+                inset 0 -5px 10px rgba(0, 0, 0, 0.2),
+                inset 0 5px 10px rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            position: relative;
+            animation: rotate-gradient-slow 8s linear infinite, float-orb 3s ease-in-out infinite;
+            transition: transform 0.3s;
+            pointer-events: all;
+        }
+
+        .orb-trigger::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.7), transparent);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        .orb-trigger:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes float-orb {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .orb-dropdown {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            min-width: 180px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .corner-orb-menu:hover .orb-dropdown {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .orb-dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--text);
+        }
+
+        .orb-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .orb-dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding-left: 20px;
+        }
+
+        .orb-dropdown-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Emergency Banner */
+        .emergency-banner {
+            background: linear-gradient(135deg, var(--danger) 0%, #e53e3e 100%);
+            color: white;
+            padding: 16px 20px;
+            display: none;
+            font-size: 14px;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .emergency-banner.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .emergency-contacts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .emergency-contacts a {
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.2s;
+        }
+        
+        .emergency-contacts a:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.35);
+        }
+        
+        /* Quick Actions - Compact Design Below Header */
+        .quick-actions {
+            padding: 10px 12px;
+            background: linear-gradient(to bottom, #fafbfc, var(--surface));
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-actions.minimized {
+            max-height: 0;
+            padding: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .quick-action {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 6px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            text-align: center;
+        }
+        
+        .quick-action::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .quick-action:active {
+            transform: scale(0.96);
+        }
+        
+        .quick-action.clicked {
+            animation: cardDismiss 0.5s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+        
+        @keyframes cardDismiss {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            40% {
+                opacity: 0.6;
+                transform: scale(0.92);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.85) translateY(-15px);
+                height: 0;
+                padding: 0;
+                margin: 0;
+                border: none;
+            }
+        }
+        
+        .quick-action-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+            filter: grayscale(0.15);
+            transition: all 0.3s;
+        }
+
+        .quick-action-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+        }
+        
+        /* Messages */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            -webkit-overflow-scrolling: touch;
+            background: linear-gradient(to bottom, var(--surface), var(--bg));
+        }
+        
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, var(--accent), #d67d52);
+            color: white;
+        }
+        
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            line-height: 1.6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .message.assistant .message-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .message.system .message-content {
+            background: linear-gradient(135deg, #fff9e6, #fffbf0);
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            max-width: 100%;
+            font-size: 14px;
+        }
+        
+        .message-content a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            background: var(--text-light);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+        
+        /* Input Area - Enterprise */
+        .input-area {
+            padding: 16px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .input-field {
+            flex: 1;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 22px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            max-height: 120px;
+            transition: all 0.2s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(44, 95, 125, 0.1);
+        }
+        
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(44, 95, 125, 0.3);
+            transition: all 0.2s;
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .send-btn:active:not(:disabled) {
+            transform: scale(0.92);
+        }
+        
+        /* Disclaimer */
+        .disclaimer {
+            font-size: 11px;
+            color: var(--text-light);
+            text-align: center;
+            padding: 10px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Desktop */
+        @media (min-width: 768px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            
+            .app-container {
+                max-width: 700px;
+                height: 90vh;
+                border-radius: var(--radius-lg);
+                box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+                overflow: hidden;
+            }
+            
+            .header {
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            }
+            
+            .quick-actions-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .quick-action {
+                padding: 10px 8px;
+            }
+
+            .quick-action-icon {
+                font-size: 22px;
+                margin-bottom: 4px;
+            }
+
+            .quick-action-label {
+                font-size: 11px;
+                font-weight: 600;
+            }
+        }
+        
+        .version {
+            position: fixed;
+            bottom: 8px;
+            right: 8px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            opacity: 0.8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="header-left">
+                <div class="mindspan-orb-logo"></div>
+                <div class="header-title">MindspanAI</div>
+                <div class="ai-badge">AI Powered</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="/admin/login.html" class="admin-icon" title="Admin Access">⚙️</a>
+                <div class="status-indicator"></div>
+            </div>
+        </div>
+
+        <!-- Corner Orb Menu (appears after cards clicked) -->
+        <div class="corner-orb-menu" id="cornerOrbMenu">
+            <div class="orb-trigger"></div>
+            <div class="orb-dropdown">
+                <div class="orb-dropdown-item" onclick="sendMessageFromOrb('What services?')">
+                    <span class="orb-dropdown-icon">🔍</span>
+                    <span>Services</span>
+                </div>
+                <div class="orb-dropdown-item" onclick="sendMessageFromOrb('How do I book?')">
+                    <span class="orb-dropdown-icon">📅</span>
+                    <span>Book</span>
+                </div>
+                <div class="orb-dropdown-item" onclick="sendMessageFromOrb('Fees?')">
+                    <span class="orb-dropdown-icon">💰</span>
+                    <span>Fees</span>
+                </div>
+                <div class="orb-dropdown-item" onclick="sendMessageFromOrb('First visit?')">
+                    <span class="orb-dropdown-icon">📋</span>
+                    <span>First Visit</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="emergencyBanner" class="emergency-banner">
+            <strong>🚨 URGENT SUPPORT?</strong>
+            <div class="emergency-contacts">
+                <a href="tel:000">🚑 000</a>
+                <a href="tel:131114">Lifeline</a>
+                <a href="tel:1300224636">Beyond Blue</a>
+                <a href="tel:1300659467">Suicide CB</a>
+            </div>
+        </div>
+        
+        <div class="quick-actions" id="quickActionsContainer">
+            <div class="quick-actions-grid" id="quickActionsGrid">
+                <div class="quick-action" onclick="sendQuickAction('What services?', this)">
+                    <div class="quick-action-icon">🔍</div>
+                    <div class="quick-action-label">Services</div>
+                </div>
+                <div class="quick-action" onclick="sendQuickAction('How do I book?', this)">
+                    <div class="quick-action-icon">📅</div>
+                    <div class="quick-action-label">Book</div>
+                </div>
+                <div class="quick-action" onclick="sendQuickAction('Fees?', this)">
+                    <div class="quick-action-icon">💰</div>
+                    <div class="quick-action-label">Fees</div>
+                </div>
+                <div class="quick-action" onclick="sendQuickAction('First visit?', this)">
+                    <div class="quick-action-icon">📋</div>
+                    <div class="quick-action-label">First Visit</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="messagesContainer" class="messages-container">
+            <div class="message system">
+                <div class="message-content">
+                    👋 <strong>Hey there! I'm MindspanAI.</strong><br>
+                    Think of me as your friendly guide here at Mindspan Psychology. I can help with info about services, booking, fees, or just answer any questions you've got. What can I help you with today?
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea id="userInput" class="input-field" placeholder="Ask me anything..." rows="1"></textarea>
+                <button id="sendBtn" class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            General info only, not clinical advice. Urgent? Call 000 or Lifeline 13 11 14.
+        </div>
+    </div>
+    
+    <div class="version">v3.2.0</div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
