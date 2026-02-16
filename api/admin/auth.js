@@ -8,7 +8,8 @@ export const config = {
 // Google OAuth configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const ALLOWED_DOMAIN = 'mindspan.com.au';
+const ALLOWED_EMAILS = ['mindspan.aus@gmail.com']; // Specific allowed emails
+const ALLOWED_DOMAIN = 'mindspan.com.au'; // Also allow @mindspan.com.au domain
 
 export default async function handler(request) {
     const headers = {
@@ -49,15 +50,18 @@ export default async function handler(request) {
             );
         }
 
-        // Check email domain
+        // Check email authorization
         const email = payload.email;
         const emailDomain = email.split('@')[1];
 
-        if (emailDomain !== ALLOWED_DOMAIN) {
+        // Allow specific emails OR emails from allowed domain
+        const isAuthorized = ALLOWED_EMAILS.includes(email) || emailDomain === ALLOWED_DOMAIN;
+
+        if (!isAuthorized) {
             return new Response(
                 JSON.stringify({
-                    error: 'Unauthorized domain',
-                    message: `Only @${ALLOWED_DOMAIN} emails are allowed`
+                    error: 'Unauthorized email',
+                    message: `Only authorized Mindspan emails are allowed`
                 }),
                 { status: 403, headers }
             );
