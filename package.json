@@ -1,7 +1,7 @@
 {
   "name": "mindspanai",
-  "version": "2.0.0",
-  "description": "AI-powered administrative assistant for Mindspan Psychology",
+  "version": "3.2.0",
+  "description": "AI-powered administrative assistant for Mindspan Psychology with admin backend and gradient orb branding",
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
