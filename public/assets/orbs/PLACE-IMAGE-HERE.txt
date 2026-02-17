@@ -1,0 +1,26 @@
+RAINBOW MINDSPAN ORB IMAGE
+===========================
+
+Please save the rainbow Mindspan orb image here with this exact filename:
+rainbow-mindspan.png
+
+Image requirements:
+- Filename: rainbow-mindspan.png (all lowercase)
+- Size: 512x512px or larger (square)
+- Format: PNG with transparency
+- Content: Rainbow gradient sphere with white Mindspan brain logo
+
+Once saved, the orb will automatically appear in:
+- Admin Panel → Site Config → Orb Selection
+- Main app (when selected)
+- Widget embed (when selected)
+- All message avatars
+
+The image should match the one you provided:
+https://www.mindspan.com.au/orb-image.png (or similar path)
+
+If you need to add the image manually:
+1. Save image to this folder: /public/assets/orbs/
+2. Name it: rainbow-mindspan.png
+3. Refresh admin panel
+4. Select it from Site Config tab

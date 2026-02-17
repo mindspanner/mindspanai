@@ -422,6 +422,26 @@ Suicide Call Back: 1300 659 467</textarea>
                 </div>
                 <button class="btn">💾 Save Emergency Contacts</button>
             </div>
+
+            <div class="card">
+                <h2>🎨 AI Agent Orb Design</h2>
+                <div class="alert alert-info">
+                    <strong>Customize Your Brand:</strong> Choose which orb design appears throughout the interface (sidebar, welcome screen, chat avatars, and widget).
+                </div>
+
+                <div class="form-group">
+                    <label>Select Orb Design</label>
+                    <div id="orbGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                        <!-- Orbs will be loaded here -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <p style="color: #718096; font-size: 14px;">
+                        <strong>Current Orb:</strong> <span id="currentOrbName" style="color: #2c5f7d; font-weight: 600;">Loading...</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -500,6 +520,100 @@ Suicide Call Back: 1300 659 467</textarea>
         const tempValue = document.getElementById('tempValue');
         tempSlider.addEventListener('input', function() {
             tempValue.textContent = this.value;
+        });
+
+        // Load available orbs on page load
+        async function loadOrbs() {
+            try {
+                const response = await fetch('/api/config/orbs');
+                const data = await response.json();
+
+                const orbGallery = document.getElementById('orbGallery');
+                const currentOrbName = document.getElementById('currentOrbName');
+
+                if (data.orbs && data.orbs.length > 0) {
+                    orbGallery.innerHTML = data.orbs.map(orb => `
+                        <div class="orb-option ${orb.id === data.currentOrb.id ? 'active' : ''}"
+                             data-orb-id="${orb.id}"
+                             onclick="selectOrb('${orb.id}')"
+                             style="border: 3px solid ${orb.id === data.currentOrb.id ? '#667eea' : '#e2e8f0'};
+                                    border-radius: 12px;
+                                    padding: 16px;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    text-align: center;">
+                            <div class="orb-preview" style="width: 100px;
+                                                            height: 100px;
+                                                            margin: 0 auto 12px;
+                                                            border-radius: 50%;
+                                                            background: ${orb.type === 'gradient' ? orb.css : 'white'};
+                                                            ${orb.type === 'image' ? `background-image: url('${orb.imageUrl}'); background-size: cover; background-position: center;` : ''}
+                                                            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);"></div>
+                            <h4 style="font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 6px;">${orb.name}</h4>
+                            <p style="font-size: 12px; color: #718096; margin: 0;">${orb.description}</p>
+                            ${orb.id === data.currentOrb.id ? '<div style="margin-top: 8px; color: #667eea; font-weight: 600; font-size: 12px;">✓ ACTIVE</div>' : ''}
+                        </div>
+                    `).join('');
+
+                    currentOrbName.textContent = data.currentOrb.name;
+                }
+            } catch (error) {
+                console.error('Error loading orbs:', error);
+                document.getElementById('currentOrbName').textContent = 'Error loading';
+            }
+        }
+
+        // Select an orb
+        async function selectOrb(orbId) {
+            try {
+                const response = await fetch('/api/config/orbs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orbId,
+                        adminToken: token
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Orb design updated!\n\nRefresh the main app to see the changes.');
+                    loadOrbs(); // Reload to update UI
+                } else {
+                    alert('❌ Failed to update orb: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        // Load orbs when the Site Config tab is opened
+        window.addEventListener('load', () => {
+            loadOrbs();
+        });
+
+        // Add hover effect for orb options
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.closest('.orb-option')) {
+                const option = e.target.closest('.orb-option');
+                if (!option.classList.contains('active')) {
+                    option.style.borderColor = '#cbd5e0';
+                    option.style.transform = 'translateY(-2px)';
+                }
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.closest('.orb-option')) {
+                const option = e.target.closest('.orb-option');
+                if (!option.classList.contains('active')) {
+                    option.style.borderColor = '#e2e8f0';
+                    option.style.transform = 'translateY(0)';
+                }
+            }
         });
     </script>
 </body>
