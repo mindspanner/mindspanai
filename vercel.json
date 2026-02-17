@@ -1,4 +1,8 @@
 {
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/widget-embed.html", "destination": "/widget-embed.html" }
+  ],
   "crons": [
     {
       "path": "/api/scrape-website",
