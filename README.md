@@ -1,28 +1,27 @@
-# 🧠 MindspanAI v1.0.0 – Complete Package
-**Build**: 20250214-1430  
-**Status**: Production-Ready (Zero-Cost Static Deployment)  
-**Target**: www.mindspan.com.au/ai
+# MindspanAI v3.2.0
+
+**Status**: Production-Ready
+**Target**: www.mindspan.com.au/agent
 
 ---
 
 ## 🎯 Executive Summary
 
-**What**: Public-facing administrative Q&A agent for Mindspan Psychology  
-**Why**: Reduce repetitive admin queries, improve 24/7 accessibility, streamline booking  
-**How**: Static HTML with keyword-matching logic (zero API cost)  
-**Cost**: $0 (v1.0.0), $5-15/month (v2.0.0 with AI)  
-**Time to Live**: 5-15 minutes  
+**What**: Public-facing administrative Q&A agent for Mindspan Psychology
+**Why**: Reduce repetitive admin queries, improve 24/7 accessibility, streamline booking
+**How**: Vercel-hosted frontend + OpenRouter AI API
+**Cost**: $0-2/month
 **Governance**: AHPRA-compliant, privacy-safe, clinically bounded
 
 ---
 
-## 🔗 Live Deployment
+## Live Deployment
 
 **GitHub Repository**: https://github.com/mindspanner/mindspanai
-**GitHub Pages**: https://mindspanner.github.io/mindspanai/
+**Vercel**: https://mindspanai.vercel.app
 **Production URL**: www.mindspan.com.au/agent (via SquareSpace iframe)
 
-**Automated Deployment**: Push to GitHub → Live in ~30 seconds
+**Automated Deployment**: Push to GitHub > Vercel auto-deploys in ~30 seconds
 
 ---
 
@@ -53,33 +52,35 @@ index.html (8KB)
 
 ## ⚡ Deployment & Updates
 
-### 🚀 Current Setup: GitHub Pages + Auto-Deployment
+### Current Setup: Vercel + Auto-Deployment
 
-The project is already deployed and configured with automated updates!
+The project is deployed to Vercel with automated updates.
 
-**Making Updates** (10 seconds):
-1. Edit `index.html` or any other file locally
+**Making Updates**:
+1. Edit files locally
 2. Run: `./update.sh`
-3. Wait ~30 seconds → Changes are live!
+3. Vercel auto-deploys — changes are live on the iframe automatically
 
-**SquareSpace Integration** (One-time setup):
-1. Log into www.mindspan.com.au admin
-2. Navigate to the page at `/agent`
-3. Clear existing content and add **Code Block** element
-4. Paste this iframe code:
+**SquareSpace Integration**:
+
+See **[AGENT-SETUP-GUIDE.md](AGENT-SETUP-GUIDE.md)** for complete setup instructions including:
+- /agent page embed code
+- Global floating chat popup code
+- Step-by-step instructions for both
+
+**Quick embed** (for the /agent page):
 ```html
 <iframe
-    src="https://mindspanner.github.io/mindspanai/"
+    src="https://mindspanai.vercel.app/"
     width="100%"
     height="900px"
     frameborder="0"
-    style="border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
-    title="MindspanAI Administrative Assistant"
+    style="border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: white;"
+    title="MindspanAI - Your 24/7 Assistant"
+    loading="lazy"
+    sandbox="allow-scripts allow-same-origin allow-forms"
 ></iframe>
 ```
-5. Save and **Publish**
-
-**Done!** Updates to GitHub automatically appear on your website.
 
 ---
 
