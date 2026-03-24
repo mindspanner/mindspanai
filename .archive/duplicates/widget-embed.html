@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
-        /* Widget Button - Gradient Orb */
+        /* Widget Button - Mindspan Orb Image */
         .widget-button {
             position: fixed;
             bottom: 24px;
@@ -23,46 +23,30 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%,
-                rgba(255, 255, 255, 0.9),
-                rgba(102, 126, 234, 0.95) 30%,
-                rgba(118, 75, 162, 1) 70%,
-                rgba(50, 40, 80, 1));
-            box-shadow:
-                0 8px 28px rgba(102, 126, 234, 0.4),
-                0 4px 12px rgba(0, 0, 0, 0.2),
-                inset 0 -6px 12px rgba(0, 0, 0, 0.25),
-                inset 0 6px 12px rgba(255, 255, 255, 0.3);
+            background: transparent;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             z-index: 9999;
             border: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: rotate-gradient-widget 8s linear infinite, float-widget 3s ease-in-out infinite;
+            animation: float-widget 3s ease-in-out infinite;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0;
+            overflow: hidden;
         }
 
-        .widget-button::before {
-            content: '';
-            position: absolute;
-            top: 22%;
-            left: 28%;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.75), transparent);
+        .widget-button img {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            filter: blur(6px);
-            pointer-events: none;
+            object-fit: cover;
         }
 
         .widget-button:hover {
             transform: scale(1.1);
-            box-shadow:
-                0 12px 36px rgba(102, 126, 234, 0.5),
-                0 6px 16px rgba(0, 0, 0, 0.25),
-                inset 0 -6px 12px rgba(0, 0, 0, 0.25),
-                inset 0 6px 12px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(0, 0, 0, 0.2);
         }
 
         .widget-button:active {
@@ -72,11 +56,6 @@
         @keyframes float-widget {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-6px); }
-        }
-
-        @keyframes rotate-gradient-widget {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
         }
 
         /* Chat Window - ChatGPT Style */
@@ -126,26 +105,15 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%,
-                rgba(255, 255, 255, 0.8),
-                rgba(102, 126, 234, 0.9) 30%,
-                rgba(118, 75, 162, 1) 70%,
-                rgba(50, 40, 80, 1));
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            animation: rotate-gradient-widget 8s linear infinite;
-            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
         }
 
-        .header-orb::after {
-            content: '';
-            position: absolute;
-            top: 20%;
-            left: 25%;
-            width: 14px;
-            height: 14px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
-            border-radius: 50%;
-            filter: blur(3px);
+        .header-orb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .header-title {
@@ -195,30 +163,16 @@
             width: 64px;
             height: 64px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%,
-                rgba(255, 255, 255, 0.9),
-                rgba(102, 126, 234, 0.95) 30%,
-                rgba(118, 75, 162, 1) 70%,
-                rgba(50, 40, 80, 1));
-            box-shadow:
-                0 12px 32px rgba(102, 126, 234, 0.4),
-                inset 0 -6px 12px rgba(0, 0, 0, 0.2),
-                inset 0 6px 12px rgba(255, 255, 255, 0.3);
-            animation: rotate-gradient-widget 8s linear infinite, float-welcome 3s ease-in-out infinite;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            animation: float-welcome 3s ease-in-out infinite;
             margin-bottom: 20px;
-            position: relative;
         }
 
-        .welcome-orb::after {
-            content: '';
-            position: absolute;
-            top: 20%;
-            left: 25%;
-            width: 24px;
-            height: 24px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
-            border-radius: 50%;
-            filter: blur(6px);
+        .welcome-orb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         @keyframes float-welcome {
@@ -270,17 +224,17 @@
             justify-content: center;
             font-size: 12px;
             font-weight: 600;
+            overflow: hidden;
         }
 
         .message.assistant .message-avatar {
-            background: radial-gradient(circle at 30% 30%,
-                rgba(255, 255, 255, 0.8),
-                rgba(102, 126, 234, 0.9) 30%,
-                rgba(118, 75, 162, 1) 70%,
-                rgba(50, 40, 80, 1));
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            color: white;
-            animation: rotate-gradient-widget 8s linear infinite;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .message.assistant .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .message.user .message-avatar {
@@ -401,6 +355,42 @@
             cursor: not-allowed;
         }
 
+        /* Footer */
+        .chat-footer {
+            padding: 8px 16px;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .chat-footer-text {
+            font-size: 11px;
+            color: #a0aec0;
+        }
+
+        .chat-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .chat-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .chat-footer-privacy {
+            font-size: 11px;
+            font-weight: 600;
+            color: #2c5f7d;
+        }
+
+        .chat-footer-privacy a {
+            color: #2c5f7d;
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
             .chat-window {
@@ -423,22 +413,34 @@
     </style>
 </head>
 <body>
+    <!-- Mindspan Orb Image URL -->
+    <script>
+        // Use the deployed orb image — fallback to relative path
+        const ORB_IMAGE_URL = '/assets/orbs/mindspan-orb.png';
+    </script>
+
     <!-- Widget Button -->
-    <button class="widget-button" id="widgetButton" aria-label="Open chat"></button>
+    <button class="widget-button" id="widgetButton" aria-label="Open MindspanAI chat">
+        <img src="/assets/orbs/mindspan-orb.png" alt="MindspanAI" />
+    </button>
 
     <!-- Chat Window -->
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
             <div class="header-left">
-                <div class="header-orb"></div>
-                <div class="header-title">MindspanAI</div>
+                <div class="header-orb">
+                    <img src="/assets/orbs/mindspan-orb.png" alt="MindspanAI" />
+                </div>
+                <div class="header-title">MindspanAI Assistant</div>
             </div>
-            <button class="close-btn" id="closeBtn" aria-label="Close chat">×</button>
+            <button class="close-btn" id="closeBtn" aria-label="Close chat">&times;</button>
         </div>
 
         <div class="messages-area" id="messagesArea">
             <div class="welcome-content" id="welcomeContent">
-                <div class="welcome-orb"></div>
+                <div class="welcome-orb">
+                    <img src="/assets/orbs/mindspan-orb.png" alt="MindspanAI" />
+                </div>
                 <h2 class="welcome-title">Hi! How can I help?</h2>
                 <p class="welcome-subtitle">Ask me about services, booking, fees, or what to expect for your first visit.</p>
             </div>
@@ -457,9 +459,14 @@
                     rows="1"
                 ></textarea>
                 <button class="send-btn" id="sendBtn" disabled>
-                    <span>↑</span>
+                    <span>&uarr;</span>
                 </button>
             </div>
+        </div>
+
+        <div class="chat-footer">
+            <span class="chat-footer-text">MindspanAI can make mistakes. Check important info. <a href="https://www.mindspan.com.au" target="_blank">Visit website</a></span>
+            <span class="chat-footer-privacy">Private &amp; Secure. General info only, not clinical advice. <a href="https://www.mindspan.com.au/privacy-policy" target="_blank">Privacy Policy</a></span>
         </div>
     </div>
 
@@ -551,9 +558,12 @@
                 // Remove typing indicator
                 removeTypingIndicator(typingId);
 
-                // Add AI response
-                if (data.reply) {
-                    addMessage('assistant', data.reply);
+                // Add AI response (check both reply and response fields)
+                const aiReply = data.reply || data.response;
+                if (aiReply) {
+                    addMessage('assistant', aiReply);
+                } else {
+                    addMessage('assistant', 'Sorry, I didn\'t get a response. Please try again.');
                 }
             } catch (error) {
                 console.error('Chat error:', error);
@@ -569,7 +579,16 @@
 
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
-            avatar.textContent = role === 'user' ? 'Y' : 'AI';
+
+            if (role === 'assistant') {
+                // Use Mindspan orb image for assistant avatar
+                const img = document.createElement('img');
+                img.src = '/assets/orbs/mindspan-orb.png';
+                img.alt = 'MindspanAI';
+                avatar.appendChild(img);
+            } else {
+                avatar.textContent = 'Y';
+            }
 
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
@@ -589,9 +608,14 @@
 
         // Format message
         function formatMessage(content) {
+            // Content may already contain HTML <a> tags from the API.
+            // Only auto-link bare URLs that are NOT already inside an <a> tag.
             let formatted = content.replace(
-                /(https?:\/\/[^\s]+)/g,
-                '<a href="$1" target="_blank">$1</a>'
+                /(?:<a\s[^>]*>[\s\S]*?<\/a>)|(https?:\/\/[^\s<]+)/gi,
+                function(match, bareUrl) {
+                    if (!bareUrl) return match; // Already an <a> tag — keep as-is
+                    return '<a href="' + bareUrl + '" target="_blank">' + bareUrl + '</a>';
+                }
             );
             formatted = formatted.replace(/\n/g, '<br>');
             return formatted;
@@ -605,7 +629,10 @@
 
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
-            avatar.textContent = 'AI';
+            const img = document.createElement('img');
+            img.src = '/assets/orbs/mindspan-orb.png';
+            img.alt = 'MindspanAI';
+            avatar.appendChild(img);
 
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';

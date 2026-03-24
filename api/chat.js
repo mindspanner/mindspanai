@@ -1,5 +1,6 @@
 // Vercel Edge Function: /api/chat.js
-// Handles AI chat requests via OpenRouter API
+// MindspanAI v3.3.0 — Multi-provider AI chat
+// Provider chain: Gemini (free) → OpenRouter → Keyword fallback
 
 const KNOWLEDGE_BASE = `
 # Mindspan Psychology - Comprehensive Knowledge Base
@@ -271,6 +272,131 @@ export const config = {
     runtime: 'edge',
 };
 
+// ─── AI Provider Functions ─────────────────────────────────────────
+
+/**
+ * Try Google Gemini API (free tier — 1,000 RPD, 15 RPM)
+ * Model: gemini-2.0-flash-lite (fast, free, good quality)
+ */
+async function tryGemini(message, apiKey) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [
+                {
+                    role: 'user',
+                    parts: [{ text: `${SYSTEM_PROMPT}\n\n---\nUser message: ${message}` }]
+                }
+            ],
+            generationConfig: {
+                maxOutputTokens: 500,
+                temperature: 0.7,
+                topP: 0.9,
+            },
+            safetySettings: [
+                { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+            ]
+        })
+    });
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Gemini ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+
+    // Extract text from Gemini response
+    const candidate = data.candidates?.[0];
+    if (!candidate?.content?.parts?.[0]?.text) {
+        throw new Error('Gemini: empty response');
+    }
+
+    return {
+        text: candidate.content.parts[0].text,
+        model: 'gemini-2.0-flash-lite',
+        provider: 'gemini'
+    };
+}
+
+/**
+ * Try Groq API (free tier — 14,400 RPD, ultra-fast)
+ * Model: llama-3.1-8b-instant
+ */
+async function tryGroq(message, apiKey) {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: message }
+            ],
+            max_tokens: 500,
+            temperature: 0.7
+        })
+    });
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Groq ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Groq: empty response');
+
+    return { text, model: 'llama-3.1-8b-instant', provider: 'groq' };
+}
+
+/**
+ * Try OpenRouter API (fallback — requires paid credits or free models)
+ * Model: openai/gpt-3.5-turbo
+ */
+async function tryOpenRouter(message, apiKey) {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://mindspan.com.au',
+            'X-Title': 'MindspanAI'
+        },
+        body: JSON.stringify({
+            model: 'openai/gpt-3.5-turbo',
+            messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: message }
+            ],
+            max_tokens: 500,
+            temperature: 0.7
+        })
+    });
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`OpenRouter ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('OpenRouter: empty response');
+
+    return { text, model: 'gpt-3.5-turbo', provider: 'openrouter' };
+}
+
+// ─── Main Handler ──────────────────────────────────────────────────
+
 export default async function handler(request) {
     // CORS headers
     const headers = {
@@ -302,60 +428,61 @@ export default async function handler(request) {
             );
         }
 
-        // Rate limiting (simple check - 10 requests per minute per session)
-        // In production, use Upstash Redis or Vercel KV
-        
-        // Call OpenRouter API
+        // ── Build provider chain (order: Gemini → Groq → OpenRouter) ──
+        const providers = [];
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (geminiKey) {
+            providers.push({ name: 'gemini', fn: () => tryGemini(message, geminiKey) });
+        }
+
+        const groqKey = process.env.GROQ_API_KEY;
+        if (groqKey) {
+            providers.push({ name: 'groq', fn: () => tryGroq(message, groqKey) });
+        }
+
         const openRouterKey = process.env.OPENROUTER_API_KEY;
-        
-        if (!openRouterKey) {
-            // Fallback to keyword matching if no API key
-            return new Response(
-                JSON.stringify({ 
-                    response: getFallbackResponse(message)
-                }),
-                { status: 200, headers }
-            );
+        if (openRouterKey) {
+            providers.push({ name: 'openrouter', fn: () => tryOpenRouter(message, openRouterKey) });
         }
 
-        const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${openRouterKey}`,
-                'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://mindspan.com.au',
-                'X-Title': 'MindspanAI'
-            },
-            body: JSON.stringify({
-                model: 'openai/gpt-3.5-turbo', // Free tier model
-                messages: [
-                    { role: 'system', content: SYSTEM_PROMPT },
-                    { role: 'user', content: message }
-                ],
-                max_tokens: 300,
-                temperature: 0.7
-            })
-        });
+        // ── Try each provider in order ──
+        let lastError = null;
 
-        if (!aiResponse.ok) {
-            console.error('OpenRouter error:', await aiResponse.text());
-            // Fallback to keyword matching
-            return new Response(
-                JSON.stringify({ 
-                    response: getFallbackResponse(message)
-                }),
-                { status: 200, headers }
-            );
+        for (const provider of providers) {
+            try {
+                const result = await provider.fn();
+                return new Response(
+                    JSON.stringify({
+                        reply: result.text,
+                        response: result.text,  // Legacy support
+                        model: result.model,
+                        provider: result.provider,
+                        sessionId
+                    }),
+                    { status: 200, headers }
+                );
+            } catch (err) {
+                console.error(`[${provider.name}] failed:`, err.message);
+                lastError = err;
+                // Continue to next provider
+            }
         }
 
-        const aiData = await aiResponse.json();
-        const responseText = aiData.choices[0].message.content;
+        // ── All providers failed or none configured — keyword fallback ──
+        if (providers.length === 0) {
+            console.warn('No AI provider keys configured. Using keyword fallback.');
+        } else {
+            console.error('All AI providers failed. Last error:', lastError?.message);
+        }
 
+        const fallback = getFallbackResponse(message);
         return new Response(
             JSON.stringify({
-                reply: responseText,
-                response: responseText, // Legacy support
-                model: 'gpt-3.5-turbo',
+                reply: fallback,
+                response: fallback,
+                model: 'keyword-fallback',
+                provider: 'fallback',
                 sessionId
             }),
             { status: 200, headers }
@@ -363,11 +490,14 @@ export default async function handler(request) {
 
     } catch (error) {
         console.error('Chat API error:', error);
+        const fallback = getFallbackResponse('error');
         return new Response(
             JSON.stringify({
                 error: 'Internal error',
-                reply: getFallbackResponse('error'),
-                response: getFallbackResponse('error') // Legacy support
+                reply: fallback,
+                response: fallback,
+                model: 'keyword-fallback',
+                provider: 'fallback'
             }),
             { status: 500, headers }
         );
