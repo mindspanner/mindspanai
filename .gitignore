@@ -1,30 +1,27 @@
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
 
+!.env.example
 # Archives
-*.zip
-*.tar.gz
-
-# Temporary files
-*.tmp
-*.bak
-*~
-
-# Files directory (if needed for local storage only)
-files/
-
-# IDE
-.vscode/
-.idea/
-
-# Logs
-*.log
-
 # Environment variables (NEVER commit these!)
+# Files directory (if needed for local storage only)
+# IDE
+# Logs
+# Temporary files
+# macOS
+*.bak
+*.log
+*.tar.gz
+*.tmp
+*.zip
+*~
+.AppleDouble
+.DS_Store
+.LSOverride
 .env
+.env*.local
+.env.*
 .env.local
 .env.production
+.idea/
 .vercel
-.env*.local
+.vscode/
+files/

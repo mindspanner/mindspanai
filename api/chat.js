@@ -275,26 +275,32 @@ export const config = {
 // ─── AI Provider Functions ─────────────────────────────────────────
 
 /**
- * Try Google Gemini API (free tier — 1,000 RPD, 15 RPM)
- * Model: gemini-2.0-flash-lite (fast, free, good quality)
+ * PRIMARY: Google Gemini API (free tier — 15 RPM, 100 QPD)
+ * Model: gemini-2.0-flash (latest, fastest, free)
+ * Cost: $0.00 (free tier)
  */
-async function tryGemini(message, apiKey) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+async function tryGemini(messages, apiKey) {
+    // Convert conversation history to Gemini format
+    const contents = messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+    }));
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            contents: [
-                {
-                    role: 'user',
-                    parts: [{ text: `${SYSTEM_PROMPT}\n\n---\nUser message: ${message}` }]
-                }
-            ],
+            systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+            },
+            contents: contents,
             generationConfig: {
-                maxOutputTokens: 500,
+                maxOutputTokens: 600,
                 temperature: 0.7,
-                topP: 0.9,
+                topP: 0.95,
+                topK: 40
             },
             safetySettings: [
                 { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
@@ -320,80 +326,11 @@ async function tryGemini(message, apiKey) {
 
     return {
         text: candidate.content.parts[0].text,
-        model: 'gemini-2.0-flash-lite',
+        model: 'gemini-2.0-flash',
         provider: 'gemini'
     };
 }
 
-/**
- * Try Groq API (free tier — 14,400 RPD, ultra-fast)
- * Model: llama-3.1-8b-instant
- */
-async function tryGroq(message, apiKey) {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
-            messages: [
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: message }
-            ],
-            max_tokens: 500,
-            temperature: 0.7
-        })
-    });
-
-    if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Groq ${response.status}: ${errText}`);
-    }
-
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content;
-    if (!text) throw new Error('Groq: empty response');
-
-    return { text, model: 'llama-3.1-8b-instant', provider: 'groq' };
-}
-
-/**
- * Try OpenRouter API (fallback — requires paid credits or free models)
- * Model: openai/gpt-3.5-turbo
- */
-async function tryOpenRouter(message, apiKey) {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://mindspan.com.au',
-            'X-Title': 'MindspanAI'
-        },
-        body: JSON.stringify({
-            model: 'openai/gpt-3.5-turbo',
-            messages: [
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: message }
-            ],
-            max_tokens: 500,
-            temperature: 0.7
-        })
-    });
-
-    if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`OpenRouter ${response.status}: ${errText}`);
-    }
-
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content;
-    if (!text) throw new Error('OpenRouter: empty response');
-
-    return { text, model: 'gpt-3.5-turbo', provider: 'openrouter' };
-}
 
 // ─── Main Handler ──────────────────────────────────────────────────
 
@@ -419,7 +356,7 @@ export default async function handler(request) {
     }
 
     try {
-        const { message, sessionId } = await request.json();
+        const { message, sessionId, history = [] } = await request.json();
 
         if (!message || !message.trim()) {
             return new Response(
@@ -428,68 +365,61 @@ export default async function handler(request) {
             );
         }
 
-        // ── Build provider chain (order: Gemini → Groq → OpenRouter) ──
-        const providers = [];
+        // ── Build conversation history (context for continuity) ──
+        const conversationHistory = [
+            ...history.slice(-10), // Keep last 10 messages for context window
+            { role: 'user', content: message }
+        ];
 
-        const geminiKey = process.env.GEMINI_API_KEY;
-        if (geminiKey) {
-            providers.push({ name: 'gemini', fn: () => tryGemini(message, geminiKey) });
-        }
+        // ── PRIMARY PROVIDER: Gemini (free tier, $0 cost) ──
+        const googleAiKey = process.env.GOOGLE_AI_API_KEY;
 
-        const groqKey = process.env.GROQ_API_KEY;
-        if (groqKey) {
-            providers.push({ name: 'groq', fn: () => tryGroq(message, groqKey) });
-        }
-
-        const openRouterKey = process.env.OPENROUTER_API_KEY;
-        if (openRouterKey) {
-            providers.push({ name: 'openrouter', fn: () => tryOpenRouter(message, openRouterKey) });
-        }
-
-        // ── Try each provider in order ──
-        let lastError = null;
-
-        for (const provider of providers) {
+        if (googleAiKey) {
             try {
-                const result = await provider.fn();
+                console.log(`[Gemini] Processing message (session: ${sessionId})`);
+                const result = await tryGemini(conversationHistory, googleAiKey);
+
+                console.log(`[Gemini] ✓ Success (model: ${result.model})`);
+
                 return new Response(
                     JSON.stringify({
                         reply: result.text,
-                        response: result.text,  // Legacy support
+                        response: result.text,
                         model: result.model,
                         provider: result.provider,
-                        sessionId
+                        sessionId,
+                        cost: '$0.00 (free tier)',
+                        timestamp: new Date().toISOString()
                     }),
                     { status: 200, headers }
                 );
-            } catch (err) {
-                console.error(`[${provider.name}] failed:`, err.message);
-                lastError = err;
-                // Continue to next provider
+            } catch (geminiErr) {
+                console.error(`[Gemini] Failed:`, geminiErr.message);
+                // Continue to fallback
             }
-        }
-
-        // ── All providers failed or none configured — keyword fallback ──
-        if (providers.length === 0) {
-            console.warn('No AI provider keys configured. Using keyword fallback.');
         } else {
-            console.error('All AI providers failed. Last error:', lastError?.message);
+            console.warn('[Gemini] No API key configured (GOOGLE_AI_API_KEY)');
         }
 
+        // ── FALLBACK: Keyword matching (always available, $0 cost) ──
+        console.log('[Fallback] Using keyword matching');
         const fallback = getFallbackResponse(message);
+
         return new Response(
             JSON.stringify({
                 reply: fallback,
                 response: fallback,
                 model: 'keyword-fallback',
                 provider: 'fallback',
-                sessionId
+                sessionId,
+                cost: '$0.00 (fallback)',
+                timestamp: new Date().toISOString()
             }),
             { status: 200, headers }
         );
 
     } catch (error) {
-        console.error('Chat API error:', error);
+        console.error('[API] Error:', error.message);
         const fallback = getFallbackResponse('error');
         return new Response(
             JSON.stringify({
@@ -497,7 +427,8 @@ export default async function handler(request) {
                 reply: fallback,
                 response: fallback,
                 model: 'keyword-fallback',
-                provider: 'fallback'
+                provider: 'fallback',
+                cost: '$0.00'
             }),
             { status: 500, headers }
         );
