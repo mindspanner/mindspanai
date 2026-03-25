@@ -1,18 +1,20 @@
 // Vercel Edge Function: /api/scrape-website.js
-// Scrapes mindspan.com.au website for knowledge base updates
+// Scrapes mindspan.com.au for knowledge base updates
+// Runs daily via Vercel cron (vercel.json) and persists to Supabase
 
 export const config = {
     runtime: 'edge',
 };
 
+// NOTE: Halaxy profile removed — it's an Angular SPA that returns framework JS, not content.
+// Halaxy data is updated manually via /api/admin/sync-knowledge
 const PAGES_TO_SCRAPE = [
-    { url: 'https://www.mindspan.com.au/', name: 'homepage', priority: 'high' },
-    { url: 'https://www.mindspan.com.au/about', name: 'about', priority: 'high' },
-    { url: 'https://www.mindspan.com.au/services', name: 'services', priority: 'high' },
-    { url: 'https://www.mindspan.com.au/fees', name: 'fees', priority: 'high' },
-    { url: 'https://www.mindspan.com.au/faq', name: 'faq', priority: 'medium' },
-    { url: 'https://www.mindspan.com.au/contact', name: 'contact', priority: 'medium' },
-    { url: 'https://www.halaxy.com/profile/ilker-abak/psychologist/359455?clinic=359358', name: 'halaxy_profile', priority: 'high' }
+    { url: 'https://www.mindspan.com.au/', name: 'homepage', topic: 'general', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/about', name: 'about', topic: 'bio', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/services', name: 'services', topic: 'services', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/fees', name: 'fees', topic: 'fees', priority: 'high' },
+    { url: 'https://www.mindspan.com.au/faq', name: 'faq', topic: 'general', priority: 'medium' },
+    { url: 'https://www.mindspan.com.au/contact', name: 'contact', topic: 'contact', priority: 'medium' },
 ];
 
 export default async function handler(request) {
@@ -27,31 +29,24 @@ export default async function handler(request) {
         return new Response(null, { headers });
     }
 
-    // Verify admin authentication
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return new Response(
-            JSON.stringify({ error: 'Unauthorized' }),
-            { status: 401, headers }
-        );
-    }
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-    // TODO: Verify JWT token here
-    // const token = authHeader.substring(7);
-    // const isValid = await verifyAdminToken(token);
-    // if (!isValid) return 401
+    const sbHeaders = supabaseUrl && supabaseKey ? {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+    } : null;
 
     try {
-        const scrapedData = {};
+        const results = [];
         const errors = [];
 
-        // Scrape each page
         for (const page of PAGES_TO_SCRAPE) {
             try {
                 const response = await fetch(page.url, {
-                    headers: {
-                        'User-Agent': 'MindspanAI-Scraper/1.0'
-                    }
+                    headers: { 'User-Agent': 'MindspanAI-Scraper/1.0' }
                 });
 
                 if (!response.ok) {
@@ -60,41 +55,38 @@ export default async function handler(request) {
                 }
 
                 const html = await response.text();
-
-                // Extract text content (simple extraction - can be enhanced)
                 const textContent = extractTextFromHTML(html);
 
-                scrapedData[page.name] = {
-                    url: page.url,
-                    content: textContent,
-                    scrapedAt: new Date().toISOString(),
-                    contentLength: textContent.length
-                };
+                // Persist to Supabase if configured
+                if (sbHeaders) {
+                    await persistToCache(supabaseUrl, sbHeaders, page, textContent);
+                }
+
+                results.push({
+                    page: page.name,
+                    topic: page.topic,
+                    contentLength: textContent.length,
+                    persisted: !!sbHeaders
+                });
 
             } catch (error) {
                 errors.push({ page: page.name, error: error.message });
             }
         }
 
-        // Detect changes by comparing with previous scrape
-        const changes = await detectChanges(scrapedData);
-
-        // Save to storage (Vercel KV or file system)
-        await saveScrapedData(scrapedData);
-
         return new Response(
             JSON.stringify({
                 success: true,
-                scrapedPages: Object.keys(scrapedData).length,
+                scraped: results.length,
                 errors: errors.length > 0 ? errors : null,
-                changes: changes,
+                persisted: !!sbHeaders,
                 timestamp: new Date().toISOString()
             }),
             { status: 200, headers }
         );
 
     } catch (error) {
-        console.error('Scraping error:', error);
+        console.error('[Scraper] Error:', error);
         return new Response(
             JSON.stringify({ error: 'Scraping failed', details: error.message }),
             { status: 500, headers }
@@ -102,38 +94,69 @@ export default async function handler(request) {
     }
 }
 
-// Extract text from HTML (basic implementation)
+async function persistToCache(supabaseUrl, sbHeaders, page, textContent) {
+    const contentHash = await hashContent(textContent);
+
+    // Check if content has changed by comparing hashes
+    try {
+        const existingRes = await fetch(
+            `${supabaseUrl}/rest/v1/knowledge_cache?topic=eq.${page.topic}&source=eq.website_scrape&is_current=eq.true&select=content_hash`,
+            { headers: sbHeaders }
+        );
+        const existing = await existingRes.json();
+
+        if (existing?.[0]?.content_hash === contentHash) {
+            console.log(`[Scraper] No changes for ${page.name} (${page.topic})`);
+            return; // No change — skip update
+        }
+    } catch (e) {
+        // Continue with update if check fails
+    }
+
+    // Mark old entries as not current
+    await fetch(
+        `${supabaseUrl}/rest/v1/knowledge_cache?topic=eq.${page.topic}&source=eq.website_scrape&is_current=eq.true`,
+        {
+            method: 'PATCH',
+            headers: sbHeaders,
+            body: JSON.stringify({ is_current: false })
+        }
+    );
+
+    // Insert new entry
+    await fetch(`${supabaseUrl}/rest/v1/knowledge_cache`, {
+        method: 'POST',
+        headers: sbHeaders,
+        body: JSON.stringify({
+            topic: page.topic,
+            source: 'website_scrape',
+            source_url: page.url,
+            content: { page_name: page.name, url: page.url },
+            content_text: textContent,
+            content_hash: contentHash,
+            scraped_at: new Date().toISOString(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            is_current: true
+        })
+    });
+
+    console.log(`[Scraper] Updated cache for ${page.name} (${page.topic})`);
+}
+
 function extractTextFromHTML(html) {
-    // Remove scripts, styles, and other non-content tags
     let text = html
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
         .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-
-    return text.substring(0, 10000); // Limit to 10k chars per page
+    return text.substring(0, 10000);
 }
 
-// Detect changes from previous scrape
-async function detectChanges(newData) {
-    try {
-        // TODO: Load previous scrape data from storage
-        // For now, return empty changes
-        return [];
-    } catch (error) {
-        console.error('Change detection error:', error);
-        return [];
-    }
-}
-
-// Save scraped data to storage
-async function saveScrapedData(data) {
-    try {
-        // TODO: Save to Vercel KV or file storage
-        // For now, just log
-        console.log('Saving scraped data:', Object.keys(data));
-    } catch (error) {
-        console.error('Save error:', error);
-    }
+async function hashContent(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }

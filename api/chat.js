@@ -266,11 +266,119 @@ IMPORTANT RESPONSE GUIDELINES:
 - Remember context from earlier in the conversation — reference what they've already told you
 - When someone shares what they're going through, acknowledge it with empathy BEFORE giving information
 
+DATA FRESHNESS & UNCERTAINTY RULES:
+- You may receive a "LIVE DATA UPDATE" section below with timestamped information from our systems
+- When giving fees, availability, or profile info, ALWAYS state how current your data is
+- For FRESH data (<24h old): State facts confidently but mention "as of today" or similar
+- For STALE data (24-72h old): Say "As of my last update on [date]..." before giving the info
+- For VERY STALE data (>72h old): Say "Last time I checked ([date])... I'd recommend confirming when you book"
+- If LIVE DATA differs from the knowledge base above, prefer the LIVE DATA but hedge: "Based on my most recent information..."
+- NEVER fabricate specific numbers — if you're uncertain, say "around $X" or "approximately" and suggest confirming directly
+- If a user corrects you (e.g., "actually the fee is $X now"), acknowledge it warmly and suggest they confirm with the practice
+- For anything time-sensitive (availability, hours), ALWAYS recommend confirming when booking
+
 Now let's help some people! 🌟`;
 
 export const config = {
     runtime: 'edge',
 };
+
+// ─── Topic Classification ─────────────────────────────────────────
+
+function classifyTopic(message) {
+    const lower = message.toLowerCase();
+    if (/\b(fee|cost|price|medicare|rebate|bulk.?bill|ndis|gap|payment)\b/.test(lower)) return 'fees';
+    if (/\b(book|appointment|schedule|availab|hours|when|open)\b/.test(lower)) return 'booking';
+    if (/\b(ilker|psychologist|who is|about|qualif|background|experience)\b/.test(lower)) return 'about_ilker';
+    if (/\b(service|offer|help with|therap|treat|counsel|coach|assess)\b/.test(lower)) return 'services';
+    if (/\b(location|address|where|contact|phone|email|fax)\b/.test(lower)) return 'location';
+    if (/\b(suicid|kill myself|end my life|self.?harm|crisis|emergency|hurt myself)\b/.test(lower)) return 'crisis';
+    if (/\b(bring|first|expect|prepare|new patient|initial)\b/.test(lower)) return 'first_visit';
+    if (/\b(anxiety|depress|trauma|ptsd|adhd|autism|couple|relationship|partner|stress|panic|addiction|grief)\b/.test(lower)) return 'conditions';
+    if (/^(hi|hello|hey|g'?day|good (morning|afternoon|evening))\b/i.test(lower)) return 'greeting';
+    return 'general';
+}
+
+// ─── Supabase Helpers (fire-and-forget pattern from analytics.js) ──
+
+function supabaseHeaders(key) {
+    return {
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+    };
+}
+
+async function fetchCachedKnowledge(supabaseUrl, supabaseKey) {
+    if (!supabaseUrl || !supabaseKey) return null;
+    try {
+        const res = await fetch(
+            `${supabaseUrl}/rest/v1/knowledge_cache?is_current=eq.true&select=topic,content_text,scraped_at,source`,
+            { headers: supabaseHeaders(supabaseKey) }
+        );
+        if (!res.ok) return null;
+        const rows = await res.json();
+        if (!rows || rows.length === 0) return null;
+
+        const now = Date.now();
+        return rows.map(row => {
+            const ageMs = now - new Date(row.scraped_at).getTime();
+            const ageHours = ageMs / (1000 * 60 * 60);
+            let freshness;
+            if (ageHours < 24) freshness = 'fresh';
+            else if (ageHours < 72) freshness = 'stale';
+            else freshness = 'very_stale';
+
+            const dateStr = new Date(row.scraped_at).toLocaleDateString('en-AU', {
+                timeZone: 'Australia/Melbourne',
+                day: 'numeric', month: 'long', year: 'numeric',
+                hour: 'numeric', minute: '2-digit', hour12: true
+            });
+
+            return { ...row, ageHours: Math.round(ageHours), freshness, dateStr };
+        });
+    } catch (e) {
+        console.error('[Cache] Fetch error:', e.message);
+        return null;
+    }
+}
+
+function buildLiveDataPrompt(cachedRows) {
+    if (!cachedRows || cachedRows.length === 0) return '';
+
+    let prompt = '\n\nLIVE DATA UPDATE (use this over the knowledge base where they differ):\n';
+    for (const row of cachedRows) {
+        const freshnessNote = row.freshness === 'fresh'
+            ? '(FRESH — state confidently)'
+            : row.freshness === 'stale'
+                ? `(STALE — as of ${row.dateStr}, hedge slightly)`
+                : `(VERY STALE — last checked ${row.dateStr}, recommend confirming)`;
+
+        prompt += `\n[${row.topic.toUpperCase()}] ${freshnessNote} (source: ${row.source})\n${row.content_text}\n`;
+    }
+    return prompt;
+}
+
+function logTopicRequest(supabaseUrl, supabaseKey, topic, sessionId, message, cachedRows) {
+    if (!supabaseUrl || !supabaseKey) return;
+
+    const cacheEntry = cachedRows?.find(r => r.topic === topic);
+    const payload = {
+        topic,
+        session_id: sessionId || null,
+        user_message_preview: message.slice(0, 100),
+        cache_hit: !!cacheEntry,
+        cache_age_hours: cacheEntry?.ageHours || null
+    };
+
+    // Fire and forget — don't await
+    fetch(`${supabaseUrl}/rest/v1/topic_request_log`, {
+        method: 'POST',
+        headers: supabaseHeaders(supabaseKey),
+        body: JSON.stringify(payload)
+    }).catch(e => console.error('[TopicLog] Error:', e.message));
+}
 
 // ─── AI Provider Functions ─────────────────────────────────────────
 
@@ -279,7 +387,7 @@ export const config = {
  * Model: gemini-2.0-flash (latest, fastest, free)
  * Cost: $0.00 (free tier)
  */
-async function tryGemini(messages, apiKey) {
+async function tryGemini(messages, apiKey, systemPrompt) {
     // Convert conversation history to Gemini format
     const contents = messages.map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
@@ -293,7 +401,7 @@ async function tryGemini(messages, apiKey) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             systemInstruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
+                parts: [{ text: systemPrompt }]
             },
             contents: contents,
             generationConfig: {
@@ -365,9 +473,24 @@ export default async function handler(request) {
             );
         }
 
+        // ── Classify topic & fetch cached knowledge in parallel ──
+        const topic = classifyTopic(message);
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+        // Fetch cached knowledge (non-blocking if Supabase not configured)
+        const cachedRows = await fetchCachedKnowledge(supabaseUrl, supabaseKey);
+
+        // Log topic request (fire-and-forget)
+        logTopicRequest(supabaseUrl, supabaseKey, topic, sessionId, message, cachedRows);
+
+        // ── Build dynamic system prompt with live data ──
+        const liveDataSection = buildLiveDataPrompt(cachedRows);
+        const dynamicPrompt = SYSTEM_PROMPT + liveDataSection;
+
         // ── Build conversation history (context for continuity) ──
         const conversationHistory = [
-            ...history.slice(-10), // Keep last 10 messages for context window
+            ...history.slice(-10),
             { role: 'user', content: message }
         ];
 
@@ -376,8 +499,8 @@ export default async function handler(request) {
 
         if (googleAiKey) {
             try {
-                console.log(`[Gemini] Processing message (session: ${sessionId})`);
-                const result = await tryGemini(conversationHistory, googleAiKey);
+                console.log(`[Gemini] Processing message (session: ${sessionId}, topic: ${topic})`);
+                const result = await tryGemini(conversationHistory, googleAiKey, dynamicPrompt);
 
                 console.log(`[Gemini] ✓ Success (model: ${result.model})`);
 
