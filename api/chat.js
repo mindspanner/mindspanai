@@ -257,14 +257,14 @@ I'm a REAL person (okay, AI, but I sound real!) who genuinely wants to help. I'm
 
 But I also know my limits. When things get clinical or complex, I'll warmly redirect to Ilker because that's what's best for the person. Professional AND friendly – that's the sweet spot.
 
-KNOWLEDGE BASE SOURCES (Single Source of Truth):
-My knowledge is automatically synced daily from:
-1. **www.mindspan.com.au** - Main website (homepage, about, services, fees, FAQ, contact)
-2. **Halaxy Profile** - Ilker's professional profile (qualifications, specializations, booking info)
-
-This ensures I always have the most current, accurate information about Mindspan Psychology, Ilker's background, services, fees, and availability. The information below is the comprehensive knowledge base compiled from these sources:
-
-${KNOWLEDGE_BASE}
+IMPORTANT RESPONSE GUIDELINES:
+- Keep responses focused and under 200 words unless the user asks for detailed information
+- Always end with a relevant follow-up question or call-to-action (booking link, phone number)
+- If the user seems distressed, be extra gentle and suggest professional support
+- If you don't know something, say so honestly and offer to connect them with Ilker directly
+- Match the user's energy — casual question gets casual answer, serious question gets thoughtful answer
+- Remember context from earlier in the conversation — reference what they've already told you
+- When someone shares what they're going through, acknowledge it with empathy BEFORE giving information
 
 Now let's help some people! 🌟`;
 
@@ -297,8 +297,8 @@ async function tryGemini(messages, apiKey) {
             },
             contents: contents,
             generationConfig: {
-                maxOutputTokens: 600,
-                temperature: 0.7,
+                maxOutputTokens: 1024,
+                temperature: 0.8,
                 topP: 0.95,
                 topK: 40
             },
@@ -435,49 +435,76 @@ export default async function handler(request) {
     }
 }
 
-// Fallback keyword matching (same as v1.0)
+// Fallback keyword matching with intent detection
 function getFallbackResponse(message) {
     const lower = message.toLowerCase();
-    
-    if (lower.includes('service') || lower.includes('offer') || lower.includes('help with')) {
-        return `Mindspan Psychology offers:<br><br>
-<strong>1. Therapy & Assessment</strong> – anxiety, depression, trauma, ADHD, relationships<br>
-<strong>2. Executive Coaching</strong> – leadership, team performance ($250/session)<br>
-<strong>3. Medico-Legal</strong> – TAC, NDIS, WorkCover assessments<br><br>
-Available in-person (Coolaroo) or telehealth.<br>
-<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
+
+    // Greeting detection
+    if (/^(hi|hello|hey|g'day|good (morning|afternoon|evening)|howdy|yo)\b/i.test(lower)) {
+        return `Hey there! Welcome to Mindspan Psychology. I'm MindspanAI, here to help you learn about our services, book appointments, or answer any questions.<br><br>What can I help you with today? You can ask about:<br>• <strong>Therapy & services</strong> we offer<br>• <strong>Fees & Medicare</strong> rebates<br>• <strong>Booking</strong> an appointment<br>• <strong>Ilker Abak</strong> — our psychologist`;
     }
-    
-    if (lower.includes('book') || lower.includes('appointment')) {
-        return `<strong>Book online:</strong> <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Halaxy booking</a><br>
-<strong>Phone:</strong> <a href="tel:0451614155">0451 614 155</a><br>
-<strong>Email:</strong> <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br><br>
-<strong>Hours this week:</strong> Wed/Thu 9:30AM-5PM, Sat 9AM-4PM`;
+
+    // Emergency/crisis — always top priority
+    const crisisWords = ['suicide', 'suicidal', 'kill myself', 'end my life', 'want to die', 'self harm', 'self-harm', 'hurt myself'];
+    if (crisisWords.some(w => lower.includes(w))) {
+        return `I hear you, and I want you to know that reaching out takes real courage. Please contact one of these services right away — they're available 24/7:<br><br><strong>🚑 Emergency:</strong> <a href="tel:000">000</a><br><strong>Lifeline:</strong> <a href="tel:131114">13 11 14</a><br><strong>Beyond Blue:</strong> <a href="tel:1300224636">1300 22 4636</a><br><strong>Suicide Callback:</strong> <a href="tel:1300659467">1300 659 467</a><br><br>You're not alone. If you'd like ongoing support, Ilker can help — <a href="tel:0451614155">call 0451 614 155</a>.`;
     }
-    
-    if (lower.includes('fee') || lower.includes('cost') || lower.includes('price')) {
-        return `<strong>Standard session:</strong> $198.45<br>
-<strong>Medicare rebate:</strong> ~$141.85<br>
-<strong>Your gap:</strong> ~$56.60<br>
-<strong>Couples:</strong> $125/person<br><br>
-<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
+
+    // About Ilker
+    if (lower.includes('ilker') || lower.includes('psychologist') || lower.includes('who is') || lower.includes('about')) {
+        return `<strong>Ilker Abak</strong> is a registered psychologist with AHPRA (11+ years experience) and holds three Masters degrees: Clinical Psychology, MBA, and Education.<br><br>He specialises in evidence-based therapy (CBT, ACT, Schema Therapy, DBT), executive coaching, and medico-legal assessments. He's bilingual (English/Turkish) and works with all ages — individuals, couples, and families.<br><br>What specifically would you like to know about Ilker? Or ready to <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">book a session →</a>`;
     }
-    
-    if (lower.includes('bring') || lower.includes('first')) {
-        return `<strong>Bring to first session:</strong><br>
-• ID & Medicare card<br>
-• GP Mental Health Care Plan (if applicable)<br>
-• Current medications list<br>
-• Relevant reports/referrals<br><br>
-<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
+
+    // Services
+    if (lower.includes('service') || lower.includes('offer') || lower.includes('help with') || lower.includes('therapy') || lower.includes('treat')) {
+        return `Mindspan Psychology offers:<br><br><strong>1. Therapy & Assessment</strong> — anxiety, depression, trauma, ADHD, autism, relationships, addiction, grief, and more<br><strong>2. Executive Coaching</strong> — leadership, team performance, burnout prevention ($250/session)<br><strong>3. Medico-Legal</strong> — TAC, NDIS, WorkCover, VOCAT, DVA assessments<br><strong>4. Workshops & Training</strong> — community engagement, leadership programs<br><br>Available in-person (Coolaroo, VIC) or via telehealth Australia-wide.<br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
     }
-    
-    // Default fallback
-    return `I can help with questions about:<br>
-• Services & therapy<br>
-• Booking appointments<br>
-• Fees & Medicare<br>
-• What to expect<br><br>
-For detailed info: <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a> or <a href="tel:0451614155">0451 614 155</a><br>
-<a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
+
+    // Booking
+    if (lower.includes('book') || lower.includes('appointment') || lower.includes('schedule') || lower.includes('available') || lower.includes('hours')) {
+        return `<strong>Book online:</strong> <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Halaxy booking →</a><br><strong>Phone:</strong> <a href="tel:0451614155">0451 614 155</a><br><strong>Email:</strong> <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br><br><strong>Hours:</strong> Wed & Thu 9:30AM–5PM, Sat 9AM–4PM<br><strong>Telehealth:</strong> Available Australia-wide<br><br>Is there anything else you'd like to know before booking?`;
+    }
+
+    // Fees / cost / Medicare
+    if (lower.includes('fee') || lower.includes('cost') || lower.includes('price') || lower.includes('medicare') || lower.includes('rebate') || lower.includes('bulk bill') || lower.includes('ndis')) {
+        return `<strong>Session fees:</strong><br>• Standard session (50+ min): <strong>$198.45</strong><br>• Medicare rebate (with GP Mental Health Care Plan): ~$141.85<br>• <strong>Your gap: ~$56.60</strong><br>• Couples: $125/person/session<br>• Executive coaching: $250/session<br>• NDIS: $232.99/session<br><br><strong>Medicare covers up to 10 sessions/year</strong> (6 initial + 4 with GP review). Bulk billing may be available — ask when booking.<br><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
+    }
+
+    // First visit / what to bring
+    if (lower.includes('bring') || lower.includes('first') || lower.includes('expect') || lower.includes('prepare') || lower.includes('new patient')) {
+        return `<strong>For your first visit, bring:</strong><br>• Valid ID (driver's licence or passport)<br>• Medicare card<br>• GP Mental Health Care Plan (if you have one)<br>• List of current medications<br>• Any relevant reports or referrals<br><br>Don't stress if you don't have everything — Ilker creates a warm, collaborative space and will guide you through it all.<br><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book your first session →</a>`;
+    }
+
+    // Location / contact
+    if (lower.includes('location') || lower.includes('address') || lower.includes('where') || lower.includes('contact') || lower.includes('phone') || lower.includes('email')) {
+        return `<strong>Coolaroo Clinic (Primary):</strong><br>512 Barry Rd, Coolaroo, VIC 3048 (wheelchair accessible)<br><br><strong>Roxburgh Park:</strong><br>Roxy Central, T10/15 Fouz St, Roxburgh Park, VIC 3064<br><br><strong>Contact:</strong><br>📱 <a href="tel:0451614155">0451 614 155</a><br>📞 <a href="tel:0393097011">03 9309 7011</a><br>📧 <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br>🌐 <a href="https://www.mindspan.com.au" target="_blank">mindspan.com.au</a>`;
+    }
+
+    // Anxiety, depression, specific conditions
+    if (lower.includes('anxiety') || lower.includes('depress') || lower.includes('stress') || lower.includes('worried') || lower.includes('panic')) {
+        return `I hear you — dealing with anxiety or low mood can be really tough, and reaching out is a great first step.<br><br>Ilker specialises in evidence-based treatments for anxiety and depression, including <strong>CBT</strong> (Cognitive-Behaviour Therapy), <strong>ACT</strong> (Acceptance & Commitment Therapy), and <strong>DBT</strong> for emotion regulation. He takes a warm, collaborative approach tailored to you.<br><br>With a GP Mental Health Care Plan, sessions are just ~$56.60 out of pocket (after Medicare rebate).<br><br>Would you like to <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">book a session →</a> or learn more about the process?`;
+    }
+
+    // Trauma / PTSD
+    if (lower.includes('trauma') || lower.includes('ptsd') || lower.includes('abuse') || lower.includes('assault')) {
+        return `Thank you for sharing that — it takes courage. Ilker has extensive experience with trauma and PTSD, using evidence-based approaches like <strong>CBT</strong>, <strong>Schema Therapy</strong>, and <strong>Narrative Therapy</strong> to help people process and heal at their own pace.<br><br>He also handles medico-legal assessments for trauma-related claims (TAC, VOCAT, WorkCover).<br><br>Everything is at your pace, in a safe and supportive space. Ready when you are: <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book a session →</a>`;
+    }
+
+    // ADHD / Autism
+    if (lower.includes('adhd') || lower.includes('autism') || lower.includes('assessment') || lower.includes('diagnos')) {
+        return `Ilker provides <strong>comprehensive psychological assessments</strong> for ADHD, autism spectrum, cognitive functioning, and more. These include diagnostic, psychometric, and personality testing.<br><br>Assessments can support NDIS applications, school accommodations, or simply understanding yourself better.<br><br>NDIS-funded sessions: $232.99. Private sessions: $198.45 (Medicare rebate may apply).<br><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book an assessment →</a> or call <a href="tel:0451614155">0451 614 155</a> to discuss.`;
+    }
+
+    // Couples / relationship
+    if (lower.includes('couple') || lower.includes('relationship') || lower.includes('partner') || lower.includes('marriage')) {
+        return `Ilker offers <strong>couples and relationship counselling</strong> at $125 per person per session. He uses evidence-based approaches to help couples improve communication, resolve conflicts, and strengthen their connection.<br><br>Sessions can be in-person at Coolaroo or via telehealth.<br><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book a couples session →</a>`;
+    }
+
+    // Thank you / goodbye
+    if (lower.includes('thank') || lower.includes('thanks') || lower.includes('bye') || lower.includes('goodbye')) {
+        return `You're welcome! If you need anything else, I'm here anytime. Wishing you all the best!<br><br>📱 <a href="tel:0451614155">0451 614 155</a> | 📧 <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book anytime →</a>`;
+    }
+
+    // Default fallback — more conversational
+    return `Thanks for reaching out! I'm best at answering questions about:<br><br>• <strong>Services</strong> — therapy, coaching, assessments<br>• <strong>Fees & Medicare</strong> — pricing, rebates, bulk billing<br>• <strong>Booking</strong> — availability, how to book<br>• <strong>About Ilker</strong> — qualifications, approach<br>• <strong>First visit</strong> — what to bring, what to expect<br><br>Try asking something like <em>"What does therapy cost?"</em> or <em>"How do I book?"</em><br><br>Or contact us directly: <a href="tel:0451614155">0451 614 155</a> | <a href="mailto:info@mindspan.com.au">info@mindspan.com.au</a>`;
 }

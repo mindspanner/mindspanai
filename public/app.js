@@ -1,10 +1,14 @@
-// MindspanAI v3.2.0 - ChatGPT-Style Interface
+// MindspanAI v3.4.0 - Intelligent Chat Interface
 
 const CONFIG = {
-    version: '3.2.0',
-    build: '20260216-1400',
+    version: '3.4.0',
+    build: '20260325-0100',
     apiEndpoint: '/api/chat'
 };
+
+// Conversation history for multi-turn context
+let conversationHistory = [];
+const sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
 const EMERGENCY_KEYWORDS = [
     'suicide', 'suicidal', 'kill myself', 'end my life', 'want to die',
@@ -75,12 +79,19 @@ async function sendMessage() {
     const typingId = 'typing-' + Date.now();
     addTypingIndicator(typingId);
 
-    // Call API
+    // Track user message in history
+    conversationHistory.push({ role: 'user', content: message });
+
+    // Call API with conversation history for context
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({
+                message,
+                sessionId,
+                history: conversationHistory.slice(-10) // Send last 10 messages for context
+            })
         });
 
         const data = await response.json();
@@ -92,13 +103,15 @@ async function sendMessage() {
         const aiReply = data.reply || data.response;
         if (aiReply) {
             addMessage('assistant', aiReply);
+            // Track assistant response in history
+            conversationHistory.push({ role: 'assistant', content: aiReply });
         } else {
             addMessage('assistant', 'Sorry, I didn\'t get a response. Please try again.');
         }
 
         // Store in localStorage for analytics
-        logMessage({ role: 'user', content: message, timestamp: Date.now() });
-        logMessage({ role: 'assistant', content: aiReply, timestamp: Date.now() });
+        logMessage({ role: 'user', content: message, timestamp: Date.now(), provider: data.provider });
+        logMessage({ role: 'assistant', content: aiReply, timestamp: Date.now(), provider: data.provider });
 
     } catch (error) {
         console.error('Chat error:', error);
@@ -220,6 +233,16 @@ function logMessage(messageData) {
     } catch (error) {
         console.error('Logging error:', error);
     }
+}
+
+// Reset conversation when starting new chat
+function resetConversation() {
+    conversationHistory = [];
+    messagesContainer.innerHTML = '';
+    welcomeScreen.style.display = 'flex';
+    messagesContainer.style.display = 'none';
+    emergencyBanner.classList.remove('show');
+    input.focus();
 }
 
 // Focus input on load
