@@ -4,7 +4,7 @@
   "description": "AI-powered administrative assistant for Mindspan Psychology with admin backend and gradient orb branding",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "npx serve public -l 3000",
     "deploy": "vercel --prod",
     "deploy-preview": "vercel"
   },

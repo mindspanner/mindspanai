@@ -126,8 +126,8 @@ Ilker provides psychological assessments and reports for:
 ## FEES & MEDICARE
 
 **Standard Fees:**
-- Private/Medicare session: $198.45 (50+ min)
-- Initial session: $198.45
+- Initial consultation: $250 (as shown on Halaxy profile)
+- Ongoing private/Medicare session: $198.45 (50+ min)
 - Couples counseling: $125/person/session
 - Executive coaching: $250 (or $2,500 for 5 sessions)
 - NDIS session: $232.99
@@ -467,7 +467,7 @@ function getFallbackResponse(message) {
 
     // Fees / cost / Medicare
     if (lower.includes('fee') || lower.includes('cost') || lower.includes('price') || lower.includes('medicare') || lower.includes('rebate') || lower.includes('bulk bill') || lower.includes('ndis')) {
-        return `<strong>Session fees:</strong><br>• Standard session (50+ min): <strong>$198.45</strong><br>• Medicare rebate (with GP Mental Health Care Plan): ~$141.85<br>• <strong>Your gap: ~$56.60</strong><br>• Couples: $125/person/session<br>• Executive coaching: $250/session<br>• NDIS: $232.99/session<br><br><strong>Medicare covers up to 10 sessions/year</strong> (6 initial + 4 with GP review). Bulk billing may be available — ask when booking.<br><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
+        return `<strong>Session fees:</strong><br>• Initial consultation: <strong>$250</strong><br>• Ongoing sessions (50+ min): <strong>$198.45</strong><br>• Medicare rebate (with GP Mental Health Care Plan): ~$141.85<br>• <strong>Your gap: ~$56.60</strong> (ongoing sessions)<br>• Couples: $125/person/session<br>• Executive coaching: $250/session<br>• NDIS: $232.99/session<br><br><strong>Medicare covers up to 10 sessions/year</strong> (6 initial + 4 with GP review). Bulk billing may be available — ask when booking.<br><br><a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">Book now →</a>`;
     }
 
     // First visit / what to bring
