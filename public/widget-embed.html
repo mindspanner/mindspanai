@@ -471,6 +471,10 @@
     </div>
 
     <script>
+        // Conversation state
+        let conversationHistory = [];
+        const sessionId = 'widget-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
         // DOM Elements
         const widgetButton = document.getElementById('widgetButton');
         const chatWindow = document.getElementById('chatWindow');
@@ -541,16 +545,23 @@
             messageInput.style.height = 'auto';
             sendBtn.disabled = true;
 
+            // Track user message in history
+            conversationHistory.push({ role: 'user', content: message });
+
             // Show typing indicator
             const typingId = 'typing-' + Date.now();
             addTypingIndicator(typingId);
 
-            // Call API
+            // Call API with conversation history
             try {
                 const response = await fetch('https://mindspanai.vercel.app/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({
+                        message,
+                        sessionId,
+                        history: conversationHistory.slice(-10)
+                    })
                 });
 
                 const data = await response.json();
@@ -562,6 +573,7 @@
                 const aiReply = data.reply || data.response;
                 if (aiReply) {
                     addMessage('assistant', aiReply);
+                    conversationHistory.push({ role: 'assistant', content: aiReply });
                 } else {
                     addMessage('assistant', 'Sorry, I didn\'t get a response. Please try again.');
                 }
