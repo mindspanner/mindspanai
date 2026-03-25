@@ -1,8 +1,10 @@
 // MindspanAI v3.4.0 - Intelligent Chat Interface
 
 const CONFIG = {
-    version: '3.4.0',
-    build: '20260325-0100',
+    version: '3.5.0',
+    build: '20260325-0200',
+    revision: '6bf3029',
+    updated: '2026-03-25',
     apiEndpoint: '/api/chat'
 };
 
@@ -266,5 +268,18 @@ try {
     console.error('Analytics error:', error);
 }
 
+// Populate version badges
+const versionBadge = document.getElementById('versionBadge');
+const sidebarVersion = document.getElementById('sidebarVersion');
+
+if (versionBadge) {
+    versionBadge.innerHTML = `v${CONFIG.version}<span class="ver-detail">${CONFIG.build} · ${CONFIG.revision}</span>`;
+}
+
+if (sidebarVersion) {
+    sidebarVersion.innerHTML = `v${CONFIG.version} · build ${CONFIG.build}<br>rev ${CONFIG.revision} · ${CONFIG.updated}`;
+}
+
 console.log(`%cMindspanAI v${CONFIG.version}`, 'color: #667eea; font-size: 16px; font-weight: bold;');
-console.log('Built with ❤️ for Mindspan Psychology');
+console.log(`Build: ${CONFIG.build} | Rev: ${CONFIG.revision} | Updated: ${CONFIG.updated}`);
+console.log('Built for Mindspan Psychology');

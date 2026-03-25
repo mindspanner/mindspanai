@@ -532,11 +532,37 @@
         /* Version */
         .version {
             position: fixed;
-            bottom: 12px;
+            bottom: 8px;
             right: 12px;
-            font-size: 11px;
+            font-size: 10px;
             color: #cbd5e0;
-            font-weight: 500;
+            font-weight: 400;
+            line-height: 1.4;
+            text-align: right;
+            user-select: text;
+            cursor: default;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .version:hover {
+            opacity: 1;
+        }
+
+        .version .ver-detail {
+            display: block;
+            font-size: 9px;
+            color: #d4dae3;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        .sidebar-version {
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 10px;
+            color: #a0aec0;
+            line-height: 1.5;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
         }
 
         /* Mobile Responsive */
@@ -639,6 +665,7 @@
                     <span>⚙️</span>
                     <span>Admin Panel</span>
                 </a>
+                <div class="sidebar-version" id="sidebarVersion"></div>
             </div>
         </div>
 
@@ -712,7 +739,7 @@
         </div>
     </div>
 
-    <div class="version">v3.4.0</div>
+    <div class="version" id="versionBadge"></div>
 
     <script src="app.js"></script>
 </body>
