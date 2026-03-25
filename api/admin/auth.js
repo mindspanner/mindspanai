@@ -8,8 +8,10 @@ export const config = {
 // Google OAuth configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const ALLOWED_EMAILS = ['mindspan.aus@gmail.com']; // Specific allowed emails
-const ALLOWED_DOMAIN = 'mindspan.com.au'; // Also allow @mindspan.com.au domain
+const ALLOWED_EMAILS = ['mindspan.aus@gmail.com', 'info@mindspan.com.au']; // Specific allowed emails
+const ALLOWED_DOMAIN = 'mindspan.com.au'; // Also allow any @mindspan.com.au email
+// The client ID used in the login page — fallback if env var not set
+const FRONTEND_CLIENT_ID = '307476088864-r8a2i0e125rr5tsp32mn8qkbgnfbuhaj.apps.googleusercontent.com';
 
 export default async function handler(request) {
     const headers = {
@@ -112,9 +114,10 @@ async function verifyGoogleToken(token) {
         console.log('Token data:', { aud: data.aud, email: data.email, email_verified: data.email_verified });
         console.log('Expected CLIENT_ID:', GOOGLE_CLIENT_ID);
 
-        // Verify audience (client ID)
-        if (GOOGLE_CLIENT_ID && data.aud !== GOOGLE_CLIENT_ID) {
-            console.error('Invalid audience. Expected:', GOOGLE_CLIENT_ID, 'Got:', data.aud);
+        // Verify audience (client ID) — accept either env var or hardcoded frontend ID
+        const expectedClientId = GOOGLE_CLIENT_ID || FRONTEND_CLIENT_ID;
+        if (expectedClientId && data.aud !== expectedClientId && data.aud !== FRONTEND_CLIENT_ID) {
+            console.error('Invalid audience. Expected:', expectedClientId, 'Got:', data.aud);
             return null;
         }
 

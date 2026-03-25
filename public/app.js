@@ -90,7 +90,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 message,
                 sessionId,
-                history: conversationHistory.slice(-10) // Send last 10 messages for context
+                history: conversationHistory.slice(-6) // Send last 3 exchanges for context (cost-efficient)
             })
         });
 

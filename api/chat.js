@@ -220,6 +220,15 @@ FORMATTING:
 - Use <strong> for emphasis
 - Make links warm: <a href="..." target="_blank">Jump in here →</a> or "Book your spot here"
 - Keep it scannable and easy to read
+- ALWAYS hyperlink key terms to their source pages when mentioning them:
+  * "services" or therapy types → <a href="https://www.mindspan.com.au/services" target="_blank">services</a>
+  * "fees" or pricing → <a href="https://www.mindspan.com.au/fees" target="_blank">fees</a>
+  * "book" or "appointment" → <a href="https://www.halaxy.com/book/appointment/ilker-abak/psychologist/359455/1336245" target="_blank">book online</a>
+  * "about Ilker" or qualifications → <a href="https://www.mindspan.com.au/about" target="_blank">about Ilker</a>
+  * "contact" or "location" → <a href="https://www.mindspan.com.au/contact" target="_blank">contact us</a>
+  * "FAQ" or common questions → <a href="https://www.mindspan.com.au/faq" target="_blank">FAQ</a>
+  * "Medicare" → <a href="https://www.mindspan.com.au/fees" target="_blank">Medicare info</a>
+- This helps users navigate directly to source information
 
 KNOWLEDGE BASE:
 ${KNOWLEDGE_BASE}
@@ -490,7 +499,7 @@ export default async function handler(request) {
 
         // ── Build conversation history (context for continuity) ──
         const conversationHistory = [
-            ...history.slice(-10),
+            ...history.slice(-6), // Last 3 exchanges — cost-efficient context
             { role: 'user', content: message }
         ];
 
