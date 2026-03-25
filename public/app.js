@@ -88,14 +88,17 @@ async function sendMessage() {
         // Remove typing indicator
         removeTypingIndicator(typingId);
 
-        // Add AI response
-        if (data.reply) {
-            addMessage('assistant', data.reply);
+        // Add AI response (check both reply and response fields)
+        const aiReply = data.reply || data.response;
+        if (aiReply) {
+            addMessage('assistant', aiReply);
+        } else {
+            addMessage('assistant', 'Sorry, I didn\'t get a response. Please try again.');
         }
 
         // Store in localStorage for analytics
         logMessage({ role: 'user', content: message, timestamp: Date.now() });
-        logMessage({ role: 'assistant', content: data.reply, timestamp: Date.now() });
+        logMessage({ role: 'assistant', content: aiReply, timestamp: Date.now() });
 
     } catch (error) {
         console.error('Chat error:', error);
@@ -131,10 +134,14 @@ function addMessage(role, content) {
 
 // Format message content
 function formatMessage(content) {
-    // Convert URLs to links
+    // Content may already contain HTML <a> tags from the API.
+    // Only auto-link bare URLs that are NOT already inside an <a> tag.
     let formatted = content.replace(
-        /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank">$1</a>'
+        /(?:<a\s[^>]*>[\s\S]*?<\/a>)|(https?:\/\/[^\s<]+)/gi,
+        function(match, bareUrl) {
+            if (!bareUrl) return match; // Already an <a> tag — keep as-is
+            return '<a href="' + bareUrl + '" target="_blank">' + bareUrl + '</a>';
+        }
     );
 
     // Convert line breaks to <br>

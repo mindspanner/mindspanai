@@ -1,5 +1,6 @@
 // Vercel Edge Function: /api/chat.js
-// Handles AI chat requests via OpenRouter API
+// MindspanAI v3.3.0 — Multi-provider AI chat
+// Provider chain: Gemini (free) → OpenRouter → Keyword fallback
 
 const KNOWLEDGE_BASE = `
 # Mindspan Psychology - Comprehensive Knowledge Base
@@ -271,75 +272,67 @@ export const config = {
     runtime: 'edge',
 };
 
-// Try Google Gemini API (Free tier: 15 RPM, 100 QPD)
+// ─── AI Provider Functions ─────────────────────────────────────────
+
+/**
+ * PRIMARY: Google Gemini API (free tier — 15 RPM, 100 QPD)
+ * Model: gemini-2.0-flash (latest, fastest, free)
+ * Cost: $0.00 (free tier)
+ */
 async function tryGemini(messages, apiKey) {
-    if (!apiKey) {
-        console.warn('Gemini API key not configured');
-        return null;
+    // Convert conversation history to Gemini format
+    const contents = messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+    }));
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+            },
+            contents: contents,
+            generationConfig: {
+                maxOutputTokens: 600,
+                temperature: 0.7,
+                topP: 0.95,
+                topK: 40
+            },
+            safetySettings: [
+                { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+            ]
+        })
+    });
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Gemini ${response.status}: ${errText}`);
     }
 
-    try {
-        // Convert messages to Gemini format
-        const contents = messages.map(msg => ({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-        }));
+    const data = await response.json();
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                systemInstruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: contents,
-                generationConfig: {
-                    maxOutputTokens: 300,
-                    temperature: 0.7,
-                    topP: 0.95,
-                    topK: 40
-                },
-                safetySettings: [
-                    {
-                        category: 'HARM_CATEGORY_HARASSMENT',
-                        threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-                    },
-                    {
-                        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                        threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-                    }
-                ]
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.text();
-            console.error(`Gemini API error (${response.status}):`, errorData);
-            return null;
-        }
-
-        const data = await response.json();
-
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-            console.error('Unexpected Gemini response format:', data);
-            return null;
-        }
-
-        const responseText = data.candidates[0].content.parts[0].text;
-        return {
-            provider: 'gemini',
-            model: 'gemini-2.0-flash',
-            reply: responseText,
-            cost: '$0.00 (free tier)'
-        };
-
-    } catch (error) {
-        console.error('Gemini API error:', error.message);
-        return null;
+    // Extract text from Gemini response
+    const candidate = data.candidates?.[0];
+    if (!candidate?.content?.parts?.[0]?.text) {
+        throw new Error('Gemini: empty response');
     }
+
+    return {
+        text: candidate.content.parts[0].text,
+        model: 'gemini-2.0-flash',
+        provider: 'gemini'
+    };
 }
+
+
+// ─── Main Handler ──────────────────────────────────────────────────
 
 export default async function handler(request) {
     // CORS headers
@@ -372,61 +365,70 @@ export default async function handler(request) {
             );
         }
 
-        // Build conversation history (keep last 10 messages for context)
+        // ── Build conversation history (context for continuity) ──
         const conversationHistory = [
-            ...history.slice(-10),
+            ...history.slice(-10), // Keep last 10 messages for context window
             { role: 'user', content: message }
         ];
 
-        // Try Gemini API first (free tier)
+        // ── PRIMARY PROVIDER: Gemini (free tier, $0 cost) ──
         const googleAiKey = process.env.GOOGLE_AI_API_KEY;
-        console.log('Checking for GOOGLE_AI_API_KEY:', googleAiKey ? 'Present' : 'Missing');
 
         if (googleAiKey) {
-            const geminiResult = await tryGemini(conversationHistory, googleAiKey);
-            if (geminiResult) {
+            try {
+                console.log(`[Gemini] Processing message (session: ${sessionId})`);
+                const result = await tryGemini(conversationHistory, googleAiKey);
+
+                console.log(`[Gemini] ✓ Success (model: ${result.model})`);
+
                 return new Response(
                     JSON.stringify({
-                        reply: geminiResult.reply,
-                        response: geminiResult.reply, // Legacy support
-                        provider: geminiResult.provider,
-                        model: geminiResult.model,
-                        cost: geminiResult.cost,
-                        sessionId
+                        reply: result.text,
+                        response: result.text,
+                        model: result.model,
+                        provider: result.provider,
+                        sessionId,
+                        cost: '$0.00 (free tier)',
+                        timestamp: new Date().toISOString()
                     }),
                     { status: 200, headers }
                 );
+            } catch (geminiErr) {
+                console.error(`[Gemini] Failed:`, geminiErr.message);
+                // Continue to fallback
             }
+        } else {
+            console.warn('[Gemini] No API key configured (GOOGLE_AI_API_KEY)');
         }
 
-        // Fallback to keyword matching
-        console.warn('Using fallback keyword matching');
-        const fallbackResponse = getFallbackResponse(message);
+        // ── FALLBACK: Keyword matching (always available, $0 cost) ──
+        console.log('[Fallback] Using keyword matching');
+        const fallback = getFallbackResponse(message);
 
         return new Response(
             JSON.stringify({
-                reply: fallbackResponse,
-                response: fallbackResponse,
-                provider: 'fallback',
+                reply: fallback,
+                response: fallback,
                 model: 'keyword-fallback',
+                provider: 'fallback',
+                sessionId,
                 cost: '$0.00 (fallback)',
-                sessionId
+                timestamp: new Date().toISOString()
             }),
             { status: 200, headers }
         );
 
     } catch (error) {
-        console.error('Chat API error:', error);
-        const fallbackResponse = getFallbackResponse('error');
-
+        console.error('[API] Error:', error.message);
+        const fallback = getFallbackResponse('error');
         return new Response(
             JSON.stringify({
                 error: 'Internal error',
-                reply: fallbackResponse,
-                response: fallbackResponse,
-                provider: 'fallback',
+                reply: fallback,
+                response: fallback,
                 model: 'keyword-fallback',
-                cost: '$0.00 (fallback)'
+                provider: 'fallback',
+                cost: '$0.00'
             }),
             { status: 500, headers }
         );
