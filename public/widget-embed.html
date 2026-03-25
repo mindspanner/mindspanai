@@ -15,7 +15,36 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
-        /* Widget Button - Mindspan Orb Image */
+        /* Shared orb gradient */
+        .css-orb {
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            position: relative;
+            animation: orb-color-cycle 8s linear infinite;
+        }
+
+        .css-orb::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(3px);
+        }
+
+        @keyframes orb-color-cycle {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Widget Button - CSS Orb */
         .widget-button {
             position: fixed;
             bottom: 24px;
@@ -23,30 +52,40 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: transparent;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.8),
+                rgba(102, 126, 234, 0.9) 30%,
+                rgba(118, 75, 162, 1) 70%,
+                rgba(50, 40, 80, 1));
+            box-shadow: 0 8px 28px rgba(102, 126, 234, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             z-index: 9999;
             border: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: float-widget 3s ease-in-out infinite;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
+            animation: float-widget 3s ease-in-out infinite, orb-color-cycle 8s linear infinite;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
+            position: fixed;
         }
 
-        .widget-button img {
-            width: 100%;
-            height: 100%;
+        .widget-button::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.7), transparent);
             border-radius: 50%;
-            object-fit: cover;
+            filter: blur(4px);
         }
 
         .widget-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 36px rgba(102, 126, 234, 0.5), 0 6px 16px rgba(0, 0, 0, 0.2);
         }
 
         .widget-button:active {
@@ -104,16 +143,8 @@
         .header-orb {
             width: 32px;
             height: 32px;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             flex-shrink: 0;
-        }
-
-        .header-orb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .header-title {
@@ -162,17 +193,9 @@
         .welcome-orb {
             width: 64px;
             height: 64px;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-            animation: float-welcome 3s ease-in-out infinite;
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+            animation: float-welcome 3s ease-in-out infinite, orb-color-cycle 8s linear infinite;
             margin-bottom: 20px;
-        }
-
-        .welcome-orb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         @keyframes float-welcome {
@@ -228,13 +251,7 @@
         }
 
         .message.assistant .message-avatar {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .message.assistant .message-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .message.user .message-avatar {
@@ -413,24 +430,15 @@
     </style>
 </head>
 <body>
-    <!-- Mindspan Orb Image URL -->
-    <script>
-        // Use the deployed orb image — fallback to relative path
-        const ORB_IMAGE_URL = '/assets/orbs/mindspan-orb.png';
-    </script>
-
     <!-- Widget Button -->
     <button class="widget-button" id="widgetButton" aria-label="Open MindspanAI chat">
-        <img src="/assets/orbs/mindspan-orb.png" alt="MindspanAI" />
     </button>
 
     <!-- Chat Window -->
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
             <div class="header-left">
-                <div class="header-orb">
-                    <img src="/assets/orbs/mindspan-orb.png" alt="MindspanAI" />
-                </div>
+                <div class="header-orb css-orb"></div>
                 <div class="header-title">MindspanAI Assistant</div>
             </div>
             <button class="close-btn" id="closeBtn" aria-label="Close chat">&times;</button>
@@ -438,9 +446,7 @@
 
         <div class="messages-area" id="messagesArea">
             <div class="welcome-content" id="welcomeContent">
-                <div class="welcome-orb">
-                    <img src="/assets/orbs/mindspan-orb.png" alt="MindspanAI" />
-                </div>
+                <div class="welcome-orb css-orb"></div>
                 <h2 class="welcome-title">Hi! How can I help?</h2>
                 <p class="welcome-subtitle">Ask me about services, booking, fees, or what to expect for your first visit.</p>
             </div>
@@ -593,11 +599,7 @@
             avatar.className = 'message-avatar';
 
             if (role === 'assistant') {
-                // Use Mindspan orb image for assistant avatar
-                const img = document.createElement('img');
-                img.src = '/assets/orbs/mindspan-orb.png';
-                img.alt = 'MindspanAI';
-                avatar.appendChild(img);
+                avatar.classList.add('css-orb');
             } else {
                 avatar.textContent = 'Y';
             }
@@ -640,11 +642,7 @@
             messageDiv.id = id;
 
             const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            const img = document.createElement('img');
-            img.src = '/assets/orbs/mindspan-orb.png';
-            img.alt = 'MindspanAI';
-            avatar.appendChild(img);
+            avatar.className = 'message-avatar css-orb';
 
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';
